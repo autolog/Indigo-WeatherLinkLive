@@ -1,0 +1,426 @@
+<?xml version="1.0"?>
+<Devices>
+    <Device type="custom" id="weatherlink">
+		<Name>WeatherLink Live</Name>
+		<ConfigUI>	
+			<Field id="address" type="textfield"  defaultValue="" tooltip="Enter IP address or Hostname of WeatherLink.">
+				<Label>IP Address or Hostname:</Label>
+			</Field>
+			<Field id="port" type="textfield" defaultValue="80" tooltip="Port number for WeatherLink.">
+				<Label>Port:</Label>
+			</Field>
+            <Field id="sep1" type="separator"/>
+            <Field id="pollingFrequency" type="textfield" defaultValue="15">
+                <Label>Poll WeatherLink device every (minutes):</Label>
+            </Field>
+            <Field id="pollingFrequencyNote" type="label" fontSize="small" fontColor="darkgray">
+                <Label>The plugin will not poll if the frequency is set to zero.</Label>
+            </Field>
+		</ConfigUI>	
+        <States>
+            <State id="did">
+                <ValueType>String</ValueType>
+                <TriggerLabel>DiD</TriggerLabel>
+                <ControlPageLabel>DiD</ControlPageLabel>
+            </State>
+            <State id="timestamp">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Time Stamp</TriggerLabel>
+                <ControlPageLabel>Time Stamp</ControlPageLabel>
+            </State>
+            <State id="error">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Error</TriggerLabel>
+                <ControlPageLabel>Error</ControlPageLabel>
+            </State>
+            <State id="status">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Status</TriggerLabel>
+                <ControlPageLabel>Status</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>status</UiDisplayStateId>
+    </Device>		
+   <Device type="custom" id="issSensor">
+        <Name>ISS Current Conditions Sensor</Name>
+        <ConfigUI>
+            <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="address" type="menu">
+                <Label>Device:</Label>
+                <List class="self" method="availableDeviceList"/>
+            </Field>            
+        </ConfigUI>
+        <States>
+            <State id="lsid">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Logical Sensor ID</TriggerLabel>
+                <ControlPageLabel>Logical Sensor ID</ControlPageLabel>
+            </State>
+            <State id="data_structure_type">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Data Type</TriggerLabel>
+                <ControlPageLabel>Data Type</ControlPageLabel>
+            </State>
+            <State id="txid">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Transmitter ID</TriggerLabel>
+                <ControlPageLabel>Transmitter ID</ControlPageLabel>
+            </State>
+            <State id="rx_state">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Radio receiver state</TriggerLabel>
+                <ControlPageLabel>Radio receiver state</ControlPageLabel>
+            </State>
+            <State id="trans_battery_flag">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Battery Status</TriggerLabel>
+                <ControlPageLabel>Battery Status</ControlPageLabel>
+            </State>
+            <State id="temp">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Temperature</TriggerLabel>
+                <ControlPageLabel>Temperature</ControlPageLabel>
+            </State>
+            <State id="hum">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Humidity</TriggerLabel>
+                <ControlPageLabel>Humidity</ControlPageLabel>
+            </State>
+            <State id="dew_point">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Dew Point</TriggerLabel>
+                <ControlPageLabel>Dew Point</ControlPageLabel>
+            </State>
+            <State id="wet_bulb">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wet Bulb</TriggerLabel>
+                <ControlPageLabel>Wet Bulb</ControlPageLabel>
+            </State>
+            <State id="heat_index">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Heat Index</TriggerLabel>
+                <ControlPageLabel>Heat Index</ControlPageLabel>
+            </State>
+            <State id="thw_index">
+                <ValueType>String</ValueType>
+                <TriggerLabel>THW Index</TriggerLabel>
+                <ControlPageLabel>THW Index</ControlPageLabel>
+            </State>
+            <State id="thsw_index">
+                <ValueType>String</ValueType>
+                <TriggerLabel>THSW Index</TriggerLabel>
+                <ControlPageLabel>THSW Index</ControlPageLabel>
+            </State>
+            <State id="wind_speed_last">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Speed</TriggerLabel>
+                <ControlPageLabel>Wind Speed</ControlPageLabel>
+            </State>
+            <State id="wind_dir_last">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Direction</TriggerLabel>
+                <ControlPageLabel>Wind Direction</ControlPageLabel>
+            </State>
+            <State id="wind_speed_avg_last_1_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Speed 1 Min Average</TriggerLabel>
+                <ControlPageLabel>Wind Speed 1 Min Average</ControlPageLabel>
+            </State>
+            <State id="wind_dir_scalar_avg_last_1_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Direction 1 Min Average</TriggerLabel>
+                <ControlPageLabel>Wind Direction 1 Min Average</ControlPageLabel>
+            </State>
+            <State id="wind_speed_avg_last_2_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Speed 2 Min Average</TriggerLabel>
+                <ControlPageLabel>Wind Speed 2 Min Average</ControlPageLabel>
+            </State>
+            <State id="wind_dir_scalar_avg_last_2_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Direction 2 Min Average</TriggerLabel>
+                <ControlPageLabel>Wind Direction 2 Min Average</ControlPageLabel>
+            </State>
+            <State id="wind_speed_hi_last_2_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Speed 2 Min High</TriggerLabel>
+                <ControlPageLabel>Wind Speed 2 Min High</ControlPageLabel>
+            </State>
+            <State id="wind_dir_at_hi_speed_last_2_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Direction at 2 Min High</TriggerLabel>
+                <ControlPageLabel>Wind Direction at 2 Min High</ControlPageLabel>
+            </State>
+            <State id="wind_speed_avg_last_10_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Speed 10 Min Average</TriggerLabel>
+                <ControlPageLabel>Wind Speed 10 Min Average</ControlPageLabel>
+            </State>
+            <State id="wind_dir_scalar_avg_last_10_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Direction 10 Min Average</TriggerLabel>
+                <ControlPageLabel>Wind Direction 10 Min Average</ControlPageLabel>
+            </State>
+            <State id="wind_speed_hi_last_10_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Speed 10 Min High</TriggerLabel>
+                <ControlPageLabel>Wind Speed 10 Min High</ControlPageLabel>
+            </State>
+            <State id="wind_dir_at_hi_speed_last_10_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Direction at 10 Min High</TriggerLabel>
+                <ControlPageLabel>Wind Direction at 10 Min High</ControlPageLabel>
+            </State>
+            <State id="rain_size">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Rain collector type/size</TriggerLabel>
+                <ControlPageLabel>Rain collector type/size</ControlPageLabel>
+            </State>
+            <State id="rain_rate_last">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Most recent rain rate</TriggerLabel>
+                <ControlPageLabel>Most recent rain rate</ControlPageLabel>
+            </State>
+            <State id="rain_rate_hi">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Max rain rate 1 min</TriggerLabel>
+                <ControlPageLabel>Max rain rate 1 min</ControlPageLabel>
+            </State>
+            <State id="rainfall_last_15_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count last 15 min</TriggerLabel>
+                <ControlPageLabel>Total rain count last 15 min</ControlPageLabel>
+            </State>
+            <State id="rain_rate_hi_last_15_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Highest rain count last 15 min</TriggerLabel>
+                <ControlPageLabel>Highest rain count last 15 min/ControlPageLabel>
+            </State>
+            <State id="rainfall_last_60_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count last 60 min</TriggerLabel>
+                <ControlPageLabel>Total rain count last 60 min</ControlPageLabel>
+            <State id="rainfall_last_24_hr">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count last 24 hrs</TriggerLabel>
+                <ControlPageLabel>Total rain count last 24 hrs</ControlPageLabel>
+            </State>
+            <State id="rain_storm">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count since break</TriggerLabel>
+                <ControlPageLabel>Total rain count since break</ControlPageLabel>
+            </State>
+            <State id="rain_storm_last">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count since break</TriggerLabel>
+                <ControlPageLabel>Total rain count since break</ControlPageLabel>
+            </State>
+            <State id="rain_storm_start_at">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Rain storm start</TriggerLabel>
+                <ControlPageLabel>Rain storm start</ControlPageLabel>
+            </State>
+            <State id="rain_storm_last_start_at">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Rain storm start</TriggerLabel>
+                <ControlPageLabel>Rain storm start</ControlPageLabel>
+            </State>
+            <State id="rain_storm_last_end_at">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Rain storm end</TriggerLabel>
+                <ControlPageLabel>Rain storm end</ControlPageLabel>
+            </State>
+            <State id="rainfall_daily">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count since midnight</TriggerLabel>
+                <ControlPageLabel>Total rain count since midnight</ControlPageLabel>
+            </State>
+            <State id="rainfall_monthly">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count this month</TriggerLabel>
+                <ControlPageLabel>Total rain count this month</ControlPageLabel>
+            </State>
+            <State id="rainfall_year">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count this year</TriggerLabel>
+                <ControlPageLabel>Total rain count this year</ControlPageLabel>
+            </State>
+            <State id="solar_rad">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Most recent solar radiation</TriggerLabel>
+                <ControlPageLabel>Most recent solar radiation</ControlPageLabel>
+            </State>
+            <State id="uv_index">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Most recent UV Index</TriggerLabel>
+                <ControlPageLabel>Most recent UV Index</ControlPageLabel>
+            </State>
+        </States>
+    </Device>		
+    <Device type="custom" id="moistureSensor">
+        <Name>Leaf/Soil Moisture Conditions Sensor</Name>
+        <ConfigUI>
+            <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="address" type="menu">
+                <Label>Device:</Label>
+                <List class="self" method="availableDeviceList"/>
+            </Field>            
+        </ConfigUI>
+        <States>
+            <State id="lsid">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Logical Sensor ID</TriggerLabel>
+                <ControlPageLabel>Logical Sensor ID</ControlPageLabel>
+            </State>
+            <State id="data_structure_type">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Data Type</TriggerLabel>
+                <ControlPageLabel>Data Type</ControlPageLabel>
+            </State>
+            <State id="txid">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Transmitter ID</TriggerLabel>
+                <ControlPageLabel>Transmitter ID</ControlPageLabel>
+            </State>
+            <State id="temp_1">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Temperature 1</TriggerLabel>
+                <ControlPageLabel>Temperature 1</ControlPageLabel>
+            </State>
+            <State id="temp_2">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Temperature 2</TriggerLabel>
+                <ControlPageLabel>Temperature 2</ControlPageLabel>
+            </State>
+            <State id="temp_3">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Temperature 3</TriggerLabel>
+                <ControlPageLabel>Temperature 3</ControlPageLabel>
+            </State>
+            <State id="temp_4">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Temperature 4</TriggerLabel>
+                <ControlPageLabel>Temperature 4</ControlPageLabel>
+            </State>
+            <State id="moist_soil_1">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Moisture 1</TriggerLabel>
+                <ControlPageLabel>Moisture 1</ControlPageLabel>
+            </State>
+            <State id="moist_soil_2">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Moisture 2</TriggerLabel>
+                <ControlPageLabel>Moisture 2</ControlPageLabel>
+            </State>
+            <State id="moist_soil_3">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Moisture 3</TriggerLabel>
+                <ControlPageLabel>Moisture 3</ControlPageLabel>
+            </State>
+            <State id="moist_soil_4">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Moisture 4</TriggerLabel>
+                <ControlPageLabel>Moisture 4</ControlPageLabel>
+            </State>
+            <State id="wet_leaf_1">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wet Leaf 1</TriggerLabel>
+                <ControlPageLabel>Wet Leaf 1</ControlPageLabel>
+            </State>
+            <State id="wet_leaf_2">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wet Leaf 2</TriggerLabel>
+                <ControlPageLabel>Wet Leaf 2</ControlPageLabel>
+            </State>
+            <State id="rx_state">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Radio receiver state</TriggerLabel>
+                <ControlPageLabel>Radio receiver state</ControlPageLabel>
+            </State>
+            <State id="trans_battery_flag">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Battery Status</TriggerLabel>
+                <ControlPageLabel>Battery Status</ControlPageLabel>
+            </State>
+        </States>
+    </Device>		
+    <Device type="custom" id="baroSensor">
+        <Name>LSS Barometric Conditions Sensor</Name>
+        <ConfigUI>
+            <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="address" type="menu">
+                <Label>Device:</Label>
+                <List class="self" method="availableDeviceList"/>
+            </Field>            
+        </ConfigUI>
+        <States>
+            <State id="lsid">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Logical Sensor ID</TriggerLabel>
+                <ControlPageLabel>Logical Sensor ID</ControlPageLabel>
+            </State>
+            <State id="data_structure_type">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Data Type</TriggerLabel>
+                <ControlPageLabel>Data Type</ControlPageLabel>
+            </State>
+            <State id="bar_sea_level">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Sea Level Barometer</TriggerLabel>
+                <ControlPageLabel>Sea Level Barometer</ControlPageLabel>
+            </State>
+            <State id="bar_trend">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Current 3 hour bar trend</TriggerLabel>
+                <ControlPageLabel>Current 3 hour bar trend</ControlPageLabel>
+            </State>
+            <State id="bar_absolute">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Raw bar sensor reading</TriggerLabel>
+                <ControlPageLabel>Raw bar sensor reading</ControlPageLabel>
+            </State>
+        </States>
+    </Device>    <Device type="custom" id="tempHumSensor">
+        <Name>LSS Temp/Hum Conditions Sensor</Name>
+        <ConfigUI>
+            <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="address" type="menu">
+                <Label>Device:</Label>
+                <List class="self" method="availableDeviceList"/>
+            </Field>            
+        </ConfigUI>
+        <States>
+            <State id="lsid">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Logical Sensor ID</TriggerLabel>
+                <ControlPageLabel>Logical Sensor ID</ControlPageLabel>
+            </State>
+            <State id="data_structure_type">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Data Type</TriggerLabel>
+                <ControlPageLabel>Data Type</ControlPageLabel>
+            </State>
+            <State id="temp_in">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Indoor Temperature</TriggerLabel>
+                <ControlPageLabel>Indoor Temperature</ControlPageLabel>
+            </State>
+            <State id="hum_in">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Indoor Humidity</TriggerLabel>
+                <ControlPageLabel>Indoor Humidity</ControlPageLabel>
+            </State>
+            <State id="dew_point_in">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Indoor Dew Point</TriggerLabel>
+                <ControlPageLabel>Indoor Dew Point</ControlPageLabel>
+            </State>
+            <State id="heat_index_in">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Indoor Heat Index</TriggerLabel>
+                <ControlPageLabel>Indoor Heat Index</ControlPageLabel>
+            </State>
+        </States>
+    </Device>		
+		    
+ </Devices>
