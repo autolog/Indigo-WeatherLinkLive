@@ -6,6 +6,18 @@
 	 back to the user you can post information into the Event Log.
 -->
 <MenuItems>
+    <MenuItem id="pollWeatherLink">
+        <Name>Poll WeatherLink</Name>
+        <CallbackMethod>pollWeatherLinkMenu</CallbackMethod>
+        <ButtonTitle>Poll</ButtonTitle>
+        <ConfigUI>
+            <Field id="targetDevice" type="menu">
+                <Label>Select WeatherLink to poll:</Label>
+                <List class="self" method="pickWeatherLink" filter="" dynamicReload="true"/>
+            </Field>
+        </ConfigUI>
+    </MenuItem>
+
     <MenuItem id="dumpKnownDevices">
     	<Name>Write Known Device List to Log</Name>
     	<CallbackMethod>dumpKnownDevices</CallbackMethod>

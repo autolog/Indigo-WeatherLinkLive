@@ -1,22 +1,15 @@
 <?xml version="1.0"?>
 <Devices>
     <Device type="custom" id="weatherlink">
-		<Name>WeatherLink Live</Name>
-		<ConfigUI>	
-			<Field id="address" type="textfield"  defaultValue="" tooltip="Enter IP address or Hostname of WeatherLink.">
-				<Label>IP Address or Hostname:</Label>
-			</Field>
-			<Field id="port" type="textfield" defaultValue="80" tooltip="Port number for WeatherLink.">
-				<Label>Port:</Label>
-			</Field>
-            <Field id="sep1" type="separator"/>
-            <Field id="pollingFrequency" type="textfield" defaultValue="15">
-                <Label>Poll WeatherLink device every (minutes):</Label>
+        <Name>WeatherLink Live Base Station</Name>
+        <ConfigUI>  
+            <Field id="address" type="textfield"  defaultValue="" tooltip="Enter IP address or Hostname of WeatherLink.">
+                <Label>IP Address or Hostname:</Label>
             </Field>
-            <Field id="pollingFrequencyNote" type="label" fontSize="small" fontColor="darkgray">
-                <Label>The plugin will not poll if the frequency is set to zero.</Label>
+            <Field id="port" type="textfield" defaultValue="80" tooltip="Port number for WeatherLink.">
+                <Label>Port:</Label>
             </Field>
-		</ConfigUI>	
+        </ConfigUI> 
         <States>
             <State id="did">
                 <ValueType>String</ValueType>
@@ -40,14 +33,17 @@
             </State>
         </States>
         <UiDisplayStateId>status</UiDisplayStateId>
-    </Device>		
-   <Device type="custom" id="issSensor">
+    </Device>       
+    <Device type="sensor" id="issSensor">
         <Name>ISS Current Conditions Sensor</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
+            <Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+            <Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="menu">
                 <Label>Device:</Label>
-                <List class="self" method="availableDeviceList"/>
+                <List class="self" filter="1" method="availableDeviceList"/>
             </Field>            
         </ConfigUI>
         <States>
@@ -194,12 +190,13 @@
             <State id="rain_rate_hi_last_15_min">
                 <ValueType>String</ValueType>
                 <TriggerLabel>Highest rain count last 15 min</TriggerLabel>
-                <ControlPageLabel>Highest rain count last 15 min/ControlPageLabel>
+                <ControlPageLabel>Highest rain count last 15 min</ControlPageLabel>
             </State>
             <State id="rainfall_last_60_min">
                 <ValueType>String</ValueType>
                 <TriggerLabel>Total rain count last 60 min</TriggerLabel>
                 <ControlPageLabel>Total rain count last 60 min</ControlPageLabel>
+            </State>
             <State id="rainfall_last_24_hr">
                 <ValueType>String</ValueType>
                 <TriggerLabel>Total rain count last 24 hrs</TriggerLabel>
@@ -256,14 +253,18 @@
                 <ControlPageLabel>Most recent UV Index</ControlPageLabel>
             </State>
         </States>
-    </Device>		
-    <Device type="custom" id="moistureSensor">
+        <UiDisplayStateId>temp</UiDisplayStateId>
+    </Device>       
+    <Device type="sensor" id="moistureSensor">
         <Name>Leaf/Soil Moisture Conditions Sensor</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
+            <Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+            <Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="menu">
                 <Label>Device:</Label>
-                <List class="self" method="availableDeviceList"/>
+                <List class="self" filter="2" method="availableDeviceList"/>
             </Field>            
         </ConfigUI>
         <States>
@@ -343,14 +344,18 @@
                 <ControlPageLabel>Battery Status</ControlPageLabel>
             </State>
         </States>
-    </Device>		
+        <UiDisplayStateId>moist_soil_1</UiDisplayStateId>
+    </Device>       
     <Device type="custom" id="baroSensor">
         <Name>LSS Barometric Conditions Sensor</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
+            <Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+            <Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="menu">
                 <Label>Device:</Label>
-                <List class="self" method="availableDeviceList"/>
+                <List class="self" filter="3" method="availableDeviceList"/>
             </Field>            
         </ConfigUI>
         <States>
@@ -380,13 +385,18 @@
                 <ControlPageLabel>Raw bar sensor reading</ControlPageLabel>
             </State>
         </States>
-    </Device>    <Device type="custom" id="tempHumSensor">
+        <UiDisplayStateId>bar_sea_level</UiDisplayStateId>
+    </Device>    
+    <Device type="custom" id="tempHumSensor">
         <Name>LSS Temp/Hum Conditions Sensor</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
+            <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
+            <Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+            <Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="menu">
                 <Label>Device:</Label>
-                <List class="self" method="availableDeviceList"/>
+                <List class="self" filter="4" method="availableDeviceList"/>
             </Field>            
         </ConfigUI>
         <States>
@@ -421,6 +431,6 @@
                 <ControlPageLabel>Indoor Heat Index</ControlPageLabel>
             </State>
         </States>
-    </Device>		
-		    
+        <UiDisplayStateId>temp_in</UiDisplayStateId>
+    </Device>       
  </Devices>
