@@ -10,7 +10,7 @@ import requests
 
 kCurDevVersCount = 0        # current version of plugin devices
 
-POLL_INTERVAL = 15 * 60     # 15 minutes
+POLL_INTERVAL = 5 * 60     # 5 minutes
 
 ################################################################################
 class WeatherLink(object):
@@ -81,7 +81,9 @@ class WeatherLink(object):
             return
 
         try:
-            json_data = json.loads(data.decode("utf-8"))        
+            raw_data = data.decode("utf-8")
+            self.logger.threaddebug("{}".format(raw_data))
+            json_data = json.loads(raw_data)        
         except Exception as err:
             self.logger.error(u"{}: udp_receive JSON decode error: {}".format(self.device.name, err))
             return
@@ -112,6 +114,8 @@ class WeatherLink(object):
         except Exception as err:
             self.logger.error(u"{}: http_poll JSON decode error: {}".format(self.device.name, err))
             return
+
+        self.logger.threaddebug("{}".format(response.text))
             
         if json_data['error']:
             self.logger.error(u"{}: http_poll Bad return code: {}".format(self.device.name, json_data['error']))
@@ -179,7 +183,7 @@ class Plugin(indigo.PluginBase):
                     
                     for link in self.weatherlinks.values():
                         self.processConditions(link.http_poll())
-                        self.sleep(1.0)     # two requests too close together causes errors 
+                        self.sleep(1.0)     # requests too close together causes errors 
                         link.udp_start()
             
                 self.sleep(1.0)
@@ -228,7 +232,11 @@ class Plugin(indigo.PluginBase):
     
         sensorList = []
         for key, value in sensor_dict.items():
-            if key in ['temp','temp_in', 'dew_point', 'dew_point_in', 'heat_index_in', 'wind_chill', 'thw_index', 'thsw_index']:
+        
+            if value == None:
+                sensorList.append({'key': key, 'value': ''})
+            
+            elif key in ['temp','temp_in', 'dew_point', 'dew_point_in', 'heat_index_in', 'wind_chill', 'thw_index', 'thsw_index']:
                 sensorList.append({'key': key, 'value': value, 'decimalPlaces': 1, 'uiValue': u'{:.1f} °F'.format(value)})
                 
             elif key in ['temp_1','temp_2', 'temp_3', 'temp_4']:
@@ -246,7 +254,7 @@ class Plugin(indigo.PluginBase):
             
             elif key in ['wind_dir_last', 'wind_dir_scalar_avg_last_1_min', 'wind_dir_scalar_avg_last_2_min', 'wind_dir_at_hi_speed_last_2_min', 
                          'wind_dir_scalar_avg_last_10_min', 'wind_dir_at_hi_speed_last_10_min']:
-                sensorList.append({'key': key, 'value': value, 'decimalPlaces': 0, 'uiValue': u'{:.0d}°'.format(value)})
+                sensorList.append({'key': key, 'value': value, 'decimalPlaces': 0, 'uiValue': u'{:d}°'.format(value)})
             
             else:        
                 sensorList.append({'key': key, 'value': value})
@@ -311,10 +319,38 @@ class Plugin(indigo.PluginBase):
         
         if device.deviceTypeId == "weatherlink":
  
+            device.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
             self.weatherlinks[device.id] = WeatherLink(device, self)
             
-        elif device.deviceTypeId in ['issSensor', 'moistureSensor', 'tempHumSensor', 'baroSensor']:
+        elif device.deviceTypeId == 'issSensor':
 
+            device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
+            key = "lsid-" + device.pluginProps['address']
+            self.sensorDevices[key] = device
+            self.knownDevices.setitem_in_item(key, 'status', "Active")
+            self.updateNeeded = True
+
+        elif device.deviceTypeId == 'moistureSensor':
+
+            device.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensor)
+            key = "lsid-" + device.pluginProps['address']
+            self.sensorDevices[key] = device
+            self.knownDevices.setitem_in_item(key, 'status', "Active")
+            self.updateNeeded = True
+
+        elif device.deviceTypeId == 'tempHumSensor':
+
+            device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
+            
+            key = "lsid-" + device.pluginProps['address']
+            self.sensorDevices[key] = device
+            self.knownDevices.setitem_in_item(key, 'status', "Active")
+            self.updateNeeded = True
+
+        elif device.deviceTypeId == 'baroSensor':
+
+            device.updateStateImageOnServer(indigo.kStateImageSel.Auto)
+            
             key = "lsid-" + device.pluginProps['address']
             self.sensorDevices[key] = device
             self.knownDevices.setitem_in_item(key, 'status', "Active")
@@ -322,9 +358,6 @@ class Plugin(indigo.PluginBase):
 
         else:
             self.logger.warning(u"{}: Invalid device type: {}".format(device.name, device.deviceTypeId))
-
-     
-        self.logger.debug(u"{}: deviceStartComm complete, sensorDevices = {}".format(device.name, self.sensorDevices))
             
     
     def deviceStopComm(self, device):
@@ -350,7 +383,8 @@ class Plugin(indigo.PluginBase):
         indigo.PluginBase.deviceDeleted(self, device)
 
         try:
-            self.knownDevices.setitem_in_item(device.address, 'status', "Available")
+            key = "lsid-" + device.address
+            self.knownDevices.setitem_in_item(key, 'status', "Available")
             self.logger.debug(u"deviceDeleted: {} ({})".format(device.name, device.id))
         except Exception, e:
             self.logger.error(u"deviceDeleted error, {}: {}".format(device.name, str(e)))
@@ -365,10 +399,10 @@ class Plugin(indigo.PluginBase):
     def availableDeviceList(self, filter="", valuesDict=None, typeId="", targetId=0):
 
         sensorTypes = {
-            '1': 'ISS Current Conditions Sensor',
-            '2': 'Leaf/Soil Moisture Conditions Sensor',
-            '3': 'LSS Barometric Conditions Sensor',
-            '4': 'LSS Temp/Hum Conditions Sensor'
+            '1': 'Integrated Sensor Suite',
+            '2': 'Leaf/Soil Moisture Sensors',
+            '3': 'Internal Barometric Sensor',
+            '4': 'Internal Temperature/Humidity Sensor'
         }
 
         self.logger.debug(u"availableDeviceList: filter = {}".format(filter))
@@ -381,14 +415,17 @@ class Plugin(indigo.PluginBase):
         self.logger.debug(u"availableDeviceList: retList = {}".format(retList))
         return retList
 
+    def pickWeatherLink(self, filter=None, valuesDict=None, typeId=0):
+        retList = []
+        for link in self.weatherlinks.values():
+            retList.append((link.device.id, link.device.name))
+        retList.sort(key=lambda tup: tup[1])
+        return retList
+
 
     ########################################
     # Menu Methods
     ########################################
-
-    # doesn't do anything, just needed to force other menus to dynamically refresh
-    def menuChanged(self, valuesDict, typeId, devId):
-        return valuesDict
 
     def pollWeatherLinkMenu(self, valuesDict, typeId):
         try:
@@ -401,8 +438,7 @@ class Plugin(indigo.PluginBase):
             if linkID == deviceId:
                 self.processConditions(link.http_poll())            
         return True
- 
- 
+  
     def dumpKnownDevices(self):
         self.logger.info(u"Known device list:\n" + str(self.knownDevices))
         
@@ -413,10 +449,8 @@ class Plugin(indigo.PluginBase):
                 self.logger.info(u"\t{}".format(address))       
                 del self.knownDevices[address]
 
+    # doesn't do anything, just needed to force other menus to dynamically refresh
+    def menuChanged(self, valuesDict, typeId, devId):
+        return valuesDict
 
-    def pickWeatherLink(self, filter=None, valuesDict=None, typeId=0):
-        retList = []
-        for link in self.weatherlinks.values():
-            retList.append((link.device.id, link.device.name))
-        retList.sort(key=lambda tup: tup[1])
-        return retList
+

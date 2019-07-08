@@ -34,12 +34,12 @@
         </States>
         <UiDisplayStateId>status</UiDisplayStateId>
     </Device>       
-    <Device type="sensor" id="issSensor">
-        <Name>ISS Current Conditions Sensor</Name>
+    <Device type="custom" id="issSensor">
+        <Name>Integrated Sensor Suite</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
             <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
-            <Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+            <Field id="SupportsSensorValue" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="menu">
                 <Label>Device:</Label>
@@ -96,6 +96,16 @@
                 <ValueType>String</ValueType>
                 <TriggerLabel>Heat Index</TriggerLabel>
                 <ControlPageLabel>Heat Index</ControlPageLabel>
+            </State>
+            <State id="heat_index">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Heat Index</TriggerLabel>
+                <ControlPageLabel>Heat Index</ControlPageLabel>
+            </State>
+            <State id="wind_chill">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Wind Chill</TriggerLabel>
+                <ControlPageLabel>Wind Chill</ControlPageLabel>
             </State>
             <State id="thw_index">
                 <ValueType>String</ValueType>
@@ -187,6 +197,11 @@
                 <TriggerLabel>Total rain count last 15 min</TriggerLabel>
                 <ControlPageLabel>Total rain count last 15 min</ControlPageLabel>
             </State>
+            <State id="rain_15_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count last 15 min</TriggerLabel>
+                <ControlPageLabel>Total rain count last 15 min</ControlPageLabel>
+            </State>
             <State id="rain_rate_hi_last_15_min">
                 <ValueType>String</ValueType>
                 <TriggerLabel>Highest rain count last 15 min</TriggerLabel>
@@ -197,7 +212,17 @@
                 <TriggerLabel>Total rain count last 60 min</TriggerLabel>
                 <ControlPageLabel>Total rain count last 60 min</ControlPageLabel>
             </State>
+            <State id="rain_60_min">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count last 60 min</TriggerLabel>
+                <ControlPageLabel>Total rain count last 60 min</ControlPageLabel>
+            </State>
             <State id="rainfall_last_24_hr">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Total rain count last 24 hrs</TriggerLabel>
+                <ControlPageLabel>Total rain count last 24 hrs</ControlPageLabel>
+            </State>
+            <State id="rain_24_hr">
                 <ValueType>String</ValueType>
                 <TriggerLabel>Total rain count last 24 hrs</TriggerLabel>
                 <ControlPageLabel>Total rain count last 24 hrs</ControlPageLabel>
@@ -255,12 +280,12 @@
         </States>
         <UiDisplayStateId>temp</UiDisplayStateId>
     </Device>       
-    <Device type="sensor" id="moistureSensor">
-        <Name>Leaf/Soil Moisture Conditions Sensor</Name>
+    <Device type="custom" id="moistureSensor">
+        <Name>Leaf/Soil Moisture Sensors</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
             <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
-            <Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+            <Field id="SupportsSensorValue" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="menu">
                 <Label>Device:</Label>
@@ -347,11 +372,11 @@
         <UiDisplayStateId>moist_soil_1</UiDisplayStateId>
     </Device>       
     <Device type="custom" id="baroSensor">
-        <Name>LSS Barometric Conditions Sensor</Name>
+        <Name>Internal Barometric Sensor</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
             <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
-            <Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+            <Field id="SupportsSensorValue" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="menu">
                 <Label>Device:</Label>
@@ -388,7 +413,7 @@
         <UiDisplayStateId>bar_sea_level</UiDisplayStateId>
     </Device>    
     <Device type="custom" id="tempHumSensor">
-        <Name>LSS Temp/Hum Conditions Sensor</Name>
+        <Name>Internal Temperature/Humidity Sensor</Name>
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
             <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
