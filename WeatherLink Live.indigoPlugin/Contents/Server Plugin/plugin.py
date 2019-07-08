@@ -316,15 +316,15 @@ class Plugin(indigo.PluginBase):
             self.logger.debug(u"{}: Updated device version: {} -> {}".format(device.name,  instanceVers, kCurDevVersCount))
         else:
             self.logger.warning(u"{}: Invalid device version: {}".format(device.name, instanceVers))
-        
+                
         if device.deviceTypeId == "weatherlink":
  
-            device.updateStateImageOnServer(indigo.kStateImageSel.PowerOn)
+            device.updateStateImageOnServer(indigo.kStateImageSel.SensorOn)
             self.weatherlinks[device.id] = WeatherLink(device, self)
             
         elif device.deviceTypeId == 'issSensor':
 
-            device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
+            device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
             key = "lsid-" + device.pluginProps['address']
             self.sensorDevices[key] = device
             self.knownDevices.setitem_in_item(key, 'status', "Active")
@@ -332,7 +332,7 @@ class Plugin(indigo.PluginBase):
 
         elif device.deviceTypeId == 'moistureSensor':
 
-            device.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensor)
+            device.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensorOn)
             key = "lsid-" + device.pluginProps['address']
             self.sensorDevices[key] = device
             self.knownDevices.setitem_in_item(key, 'status', "Active")
@@ -340,7 +340,7 @@ class Plugin(indigo.PluginBase):
 
         elif device.deviceTypeId == 'tempHumSensor':
 
-            device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensor)
+            device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
             
             key = "lsid-" + device.pluginProps['address']
             self.sensorDevices[key] = device
@@ -358,6 +358,9 @@ class Plugin(indigo.PluginBase):
 
         else:
             self.logger.warning(u"{}: Invalid device type: {}".format(device.name, device.deviceTypeId))
+
+        device.stateListOrDisplayStateIdChanged()
+
             
     
     def deviceStopComm(self, device):
@@ -373,6 +376,13 @@ class Plugin(indigo.PluginBase):
 
         self.logger.threaddebug(u"{}: deviceStopComm complete, sensorDevices = {}".format(device.name, self.sensorDevices))
             
+            
+    def getDeviceDisplayStateId(self, device):
+        stateID = indigo.PluginBase.getDeviceDisplayStateId(self, device)
+        self.logger.debug(u"{}: getDeviceDisplayStateId base returned: {}".format(device.name, stateID))
+        return stateID
+    
+    
     ################################################################################
     #
     # delegate methods for indigo.devices.subscribeToChanges()

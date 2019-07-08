@@ -45,6 +45,16 @@
                 <Label>Device:</Label>
                 <List class="self" filter="1" method="availableDeviceList"/>
             </Field>            
+            <Field id="status_state" type="menu" defaultValue="temp">
+                <Label>State to show as status:</Label>
+        		<List>
+        			<Option value="temp">Temperature</Option>
+        			<Option value="hum">Humidity</Option>
+        			<Option value="dew_point">Dew Point</Option>
+        			<Option value="heat_index">Heat Index</Option>
+        			<Option value="wind_chill">Wind Chill</Option>
+        		</List>
+            </Field>            
         </ConfigUI>
         <States>
             <State id="lsid">
@@ -91,11 +101,6 @@
                 <ValueType>String</ValueType>
                 <TriggerLabel>Wet Bulb</TriggerLabel>
                 <ControlPageLabel>Wet Bulb</ControlPageLabel>
-            </State>
-            <State id="heat_index">
-                <ValueType>String</ValueType>
-                <TriggerLabel>Heat Index</TriggerLabel>
-                <ControlPageLabel>Heat Index</ControlPageLabel>
             </State>
             <State id="heat_index">
                 <ValueType>String</ValueType>
@@ -290,6 +295,21 @@
             <Field id="address" type="menu">
                 <Label>Device:</Label>
                 <List class="self" filter="2" method="availableDeviceList"/>
+            <Field id="status_state" type="menu" defaultValue="temp_1">
+                <Label>State to show as status:</Label>
+        		<List>
+        			<Option value="temp_1">Temperature Sensor 1</Option>
+        			<Option value="temp_2">Temperature Sensor 2</Option>
+        			<Option value="temp_3">Temperature Sensor 3</Option>
+        			<Option value="temp_4">Temperature Sensor 4</Option>
+        			<Option value="moist_soil_1">Moisture Sensor 1</Option>
+        			<Option value="moist_soil_2">Moisture Sensor 2</Option>
+        			<Option value="moist_soil_3">Moisture Sensor 3</Option>
+        			<Option value="moist_soil_4">Moisture Sensor 4</Option>
+        			<Option value="wet_leaf_1">Wet Leaf Sensor 1</Option>
+        			<Option value="wet_leaf_2">Wet Leaf Sensor 2</Option>
+        		</List>
+            </Field>            
             </Field>            
         </ConfigUI>
         <States>
@@ -382,6 +402,14 @@
                 <Label>Device:</Label>
                 <List class="self" filter="3" method="availableDeviceList"/>
             </Field>            
+            <Field id="status_state" type="menu" defaultValue="bar_sea_level">
+                <Label>State to show as status:</Label>
+        		<List>
+        			<Option value="bar_sea_level">Sea Level Barometer</Option>
+        			<Option value="bar_absolute">Absolute Barometer</Option>
+        			<Option value="bar_trend">Barometric Trend</Option>
+        		</List>
+            </Field>            
         </ConfigUI>
         <States>
             <State id="lsid">
@@ -422,6 +450,15 @@
             <Field id="address" type="menu">
                 <Label>Device:</Label>
                 <List class="self" filter="4" method="availableDeviceList"/>
+            </Field>            
+            <Field id="status_state" type="menu" defaultValue="temp_in">
+                <Label>State to show as status:</Label>
+        		<List>
+        			<Option value="temp_in">Temperature</Option>
+        			<Option value="hum_in">Humidity</Option>
+        			<Option value="dew_point_in">Dew Point</Option>
+        			<Option value="heat_index_in">Heat Index</Option>
+        		</List>
             </Field>            
         </ConfigUI>
         <States>
