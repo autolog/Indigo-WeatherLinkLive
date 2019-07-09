@@ -53,7 +53,10 @@
         			<Option value="dew_point">Dew Point</Option>
         			<Option value="heat_index">Heat Index</Option>
         			<Option value="wind_chill">Wind Chill</Option>
-        			<Option value="wind_speed_avg_last_1_min">Wind Speed</Option>
+        			<Option value="rain_60_min">Hourly Rain</Option>
+        			<Option value="rain_24_hr">Daily Rain</Option>
+        			<Option value="wind_speed_last">Wind Speed</Option>
+        			<Option value="wind_speed_avg_last_2_min">Average Wind Speed</Option>
         		</List>
             </Field>            
         </ConfigUI>
@@ -198,11 +201,6 @@
                 <TriggerLabel>Max rain rate 1 min</TriggerLabel>
                 <ControlPageLabel>Max rain rate 1 min</ControlPageLabel>
             </State>
-            <State id="rainfall_last_15_min">
-                <ValueType>String</ValueType>
-                <TriggerLabel>Total rain count last 15 min</TriggerLabel>
-                <ControlPageLabel>Total rain count last 15 min</ControlPageLabel>
-            </State>
             <State id="rain_15_min">
                 <ValueType>String</ValueType>
                 <TriggerLabel>Total rain count last 15 min</TriggerLabel>
@@ -213,20 +211,10 @@
                 <TriggerLabel>Highest rain count last 15 min</TriggerLabel>
                 <ControlPageLabel>Highest rain count last 15 min</ControlPageLabel>
             </State>
-            <State id="rainfall_last_60_min">
-                <ValueType>String</ValueType>
-                <TriggerLabel>Total rain count last 60 min</TriggerLabel>
-                <ControlPageLabel>Total rain count last 60 min</ControlPageLabel>
-            </State>
             <State id="rain_60_min">
                 <ValueType>String</ValueType>
                 <TriggerLabel>Total rain count last 60 min</TriggerLabel>
                 <ControlPageLabel>Total rain count last 60 min</ControlPageLabel>
-            </State>
-            <State id="rainfall_last_24_hr">
-                <ValueType>String</ValueType>
-                <TriggerLabel>Total rain count last 24 hrs</TriggerLabel>
-                <ControlPageLabel>Total rain count last 24 hrs</ControlPageLabel>
             </State>
             <State id="rain_24_hr">
                 <ValueType>String</ValueType>
@@ -408,7 +396,6 @@
         		<List>
         			<Option value="bar_sea_level">Sea Level Barometer</Option>
         			<Option value="bar_absolute">Absolute Barometer</Option>
-        			<Option value="bar_trend">Barometric Trend</Option>
         		</List>
             </Field>            
         </ConfigUI>

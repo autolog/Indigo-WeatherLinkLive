@@ -91,9 +91,11 @@ class WeatherLink(object):
         self.logger.threaddebug(u"{}: udp_receive success: did = {}, ts = {}, {} conditions".format(self.device.name, json_data['did'], json_data['ts'], len(json_data['conditions'])))
         self.logger.threaddebug("{}".format(json_data))
 
+        time_string = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(float(json_data['ts'])))
+
         stateList = [
             { 'key':'did',      'value':  json_data['did']},
-            { 'key':'timestamp','value':  json_data['ts']}
+            { 'key':'timestamp','value':  time_string}
         ]
         self.device.updateStatesOnServer(stateList)
                    
@@ -124,11 +126,13 @@ class WeatherLink(object):
         self.logger.debug(u"{}: http_poll success: did = {}, ts = {}, {} conditions".format(self.device.name, json_data['data']['did'], json_data['data']['ts'], len(json_data['data']['conditions'])))
         self.logger.threaddebug("{}".format(json_data))
 
+        time_string = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(float(json_data['data']['ts'])))
+
         stateList = [
             { 'key':'status',   'value':  'OK'},
             { 'key':'error',    'value':  'None'},
             { 'key':'did',      'value':  json_data['data']['did']},
-            { 'key':'timestamp','value':  json_data['data']['ts']}
+            { 'key':'timestamp','value':  time_string}
         ]
         self.device.updateStatesOnServer(stateList)
 
@@ -222,19 +226,37 @@ class Plugin(indigo.PluginBase):
 
 ################################################################################
 #
-#   convert the raw dict the WLL provides to a device-state list, including special handling of UI states
+#   convert the raw dict the WLL provides to a device-state list, including conversion and UI state generation
 #
 ################################################################################
               
     def sensorDictToList(self, sensor_dict):
     
+        # get values to convert rain counts to actual units
+        rainCollector = {   0: (None, None),
+                            1: (0.01,  "in"),
+                            2: (0.2,   "mm"),
+                            3: (0.1,   "mm"),
+                            4: (0.001, "in")
+        }
+        factor, units = rainCollector[sensor_dict.get('rain_size', 1)]
+        
         sensorList = []
         for key, value in sensor_dict.items():
+        
+            # consolidate redundant states (same info from http and udp with different names)
+            if key == "rainfall_last_15_min":
+                key = "rain_15_min"
+            elif key == "rainfall_last_60_min":
+                key = "rain_60_min"
+            elif key == "rainfall_last_24_hr":
+                key = "rain_24_hr"
+
         
             if value == None:
                 sensorList.append({'key': key, 'value': ''})
             
-            elif key in ['temp','temp_in', 'dew_point', 'dew_point_in', 'heat_index_in', 'wind_chill', 'thw_index', 'thsw_index']:
+            elif key in ['temp','temp_in', 'dew_point', 'dew_point_in', 'heat_index_in', 'wind_chill', 'wet_bulb', 'heat_index', 'thw_index', 'thsw_index']:
                 sensorList.append({'key': key, 'value': value, 'decimalPlaces': 1, 'uiValue': u'{:.1f} °F'.format(value)})
                 
             elif key in ['temp_1','temp_2', 'temp_3', 'temp_4']:
@@ -253,6 +275,19 @@ class Plugin(indigo.PluginBase):
             elif key in ['wind_dir_last', 'wind_dir_scalar_avg_last_1_min', 'wind_dir_scalar_avg_last_2_min', 'wind_dir_at_hi_speed_last_2_min', 
                          'wind_dir_scalar_avg_last_10_min', 'wind_dir_at_hi_speed_last_10_min']:
                 sensorList.append({'key': key, 'value': value, 'decimalPlaces': 0, 'uiValue': u'{:d}°'.format(value)})
+            
+            elif key in ['rain_storm_start_at', 'rain_storm_last', 'rain_storm_last_end_at', 'rain_storm_last_start_at', 'timestamp']:
+                time_string = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(float(value)))
+                sensorList.append({'key': key, 'value': time_string, 'decimalPlaces': 0, 'uiValue': u'{}'.format(time_string)})
+
+            elif key in ['rain_rate_last', 'rain_rate_hi', 'rain_rate_hi_last_15_min']:
+                rain = float(value) * factor
+                sensorList.append({'key': key, 'value': rain, 'decimalPlaces': 2, 'uiValue': u'{:.2f} {}/hr'.format(rain, units)})
+            
+            elif key in ['rain_15_min', 'rain_60_min', 'rain_24_hr', 'rain_storm', 'rain_storm_last',
+                        'rainfall_daily', 'rainfall_monthly', 'rainfall_year']:
+                rain = float(value) * factor
+                sensorList.append({'key': key, 'value': rain, 'decimalPlaces': 2, 'uiValue': u'{:.2f} {}'.format(rain, units)})
             
             else:        
                 sensorList.append({'key': key, 'value': value})
@@ -298,7 +333,10 @@ class Plugin(indigo.PluginBase):
                 return True           
             if origDev.pluginProps.get('port', None) != newDev.pluginProps.get('port', None):
                 return True           
-
+        else:
+            if origDev.pluginProps.get('status_state', None) != newDev.pluginProps.get('status_state', None):
+                return True           
+        
         return False
       
     def deviceStartComm(self, device):
@@ -314,40 +352,41 @@ class Plugin(indigo.PluginBase):
             self.logger.debug(u"{}: Updated device version: {} -> {}".format(device.name,  instanceVers, kCurDevVersCount))
         else:
             self.logger.warning(u"{}: Invalid device version: {}".format(device.name, instanceVers))
+
+        device.stateListOrDisplayStateIdChanged()
                 
         if device.deviceTypeId == "weatherlink":
  
-            device.updateStateImageOnServer(indigo.kStateImageSel.SensorOn)
             self.weatherlinks[device.id] = WeatherLink(device, self)
             
-        elif device.deviceTypeId == 'issSensor':
+        elif device.deviceTypeId in ['issSensor', 'moistureSensor', 'tempHumSensor', 'baroSensor']:
 
-            device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
-            self.sensorDevices[device.id] = device
-            self.updateNeeded = True
+            if device.pluginProps.get('status_state', None) in ["temp", "temp_in", "dew_point", "dew_point_in", "heat_index", 
+                "heat_index_in", "wind_chill", "temp_1", "temp_2", "temp_3", "temp_4"]:
+                device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
 
-        elif device.deviceTypeId == 'moistureSensor':
+            elif device.pluginProps.get('status_state', None) in ["rain_15_min", "rain_60_min", "rain_24_hr"]:
+                device.updateStateImageOnServer(indigo.kStateImageSel.Auto)
 
-            device.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensorOn)
-            self.sensorDevices[device.id] = device
-            self.updateNeeded = True
+            elif device.pluginProps.get('status_state', None) in ["hum", "hum_in", "moist_soil_1", "moist_soil_2", "moist_soil_3", 
+                "moist_soil_4", "wet_leaf_1", "wet_leaf_2"]:
+                device.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensorOn)
+        			
+            elif device.pluginProps.get('status_state', None) in ["bar_sea_level", "bar_absolute"]:
+                device.updateStateImageOnServer(indigo.kStateImageSel.Auto)
 
-        elif device.deviceTypeId == 'tempHumSensor':
+            elif device.pluginProps.get('status_state', None) in ["wind_speed_last", "wind_speed_avg_last_2_min"]:
+                device.updateStateImageOnServer(indigo.kStateImageSel.WindSpeedSensor)
 
-            device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
-            self.sensorDevices[device.id] = device
-            self.updateNeeded = True
+            else:
+                device.updateStateImageOnServer(indigo.kStateImageSel.Auto)
 
-        elif device.deviceTypeId == 'baroSensor':
-
-            device.updateStateImageOnServer(indigo.kStateImageSel.Auto)
             self.sensorDevices[device.id] = device
             self.updateNeeded = True
 
         else:
             self.logger.warning(u"{}: Invalid device type: {}".format(device.name, device.deviceTypeId))
 
-        device.stateListOrDisplayStateIdChanged()
         self.logger.debug(u"{}: deviceStartComm complete, sensorDevices = {}".format(device.name, self.sensorDevices))
 
             
@@ -393,18 +432,8 @@ class Plugin(indigo.PluginBase):
         retList =[]
         for devInfo in sorted(self.knownDevices.values()):
             if devInfo['type'] == filter:
-                retList.append((devInfo['lsid'], "{}: {}".format(devInfo['lsid'], sensorTypes[filter])))
-               
+                retList.append((devInfo['lsid'], "{}: {}".format(devInfo['lsid'], sensorTypes[filter])))               
         retList.sort(key=lambda tup: tup[1])
-        
-#        if targetId:
-#            try:
-#                dev = indigo.devices[targetId]
-#                info = self.knownDevices[targetId]
-#                retList.insert(0, (dev.pluginProps["address"], dev.name))
-#            except:
-#                pass
-        
         self.logger.debug(u"availableDeviceList: retList = {}".format(retList))
         return retList
         
