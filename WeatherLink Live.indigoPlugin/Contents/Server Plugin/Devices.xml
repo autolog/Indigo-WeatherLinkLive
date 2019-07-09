@@ -53,6 +53,7 @@
         			<Option value="dew_point">Dew Point</Option>
         			<Option value="heat_index">Heat Index</Option>
         			<Option value="wind_chill">Wind Chill</Option>
+        			<Option value="wind_speed_avg_last_1_min">Wind Speed</Option>
         		</List>
             </Field>            
         </ConfigUI>
@@ -445,7 +446,7 @@
         <ConfigUI>
             <SupportURL>http://forums.indigodomo.com/viewforum.php?f=214</SupportURL>
             <Field id="SupportsOnState" type="checkbox" defaultValue="false" hidden="true" />
-            <Field id="SupportsSensorValue" type="checkbox" defaultValue="true" hidden="true" />
+            <Field id="SupportsSensorValue" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="SupportsStatusRequest" type="checkbox" defaultValue="false" hidden="true" />
             <Field id="address" type="menu">
                 <Label>Device:</Label>

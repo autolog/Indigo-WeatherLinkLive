@@ -22,8 +22,4 @@
     	<Name>Write Known Device List to Log</Name>
     	<CallbackMethod>dumpKnownDevices</CallbackMethod>
     </MenuItem>
-    <MenuItem id="purgeKnownDevices">
-    	<Name>Purge Known Device List</Name>
-    	<CallbackMethod>purgeKnownDevices</CallbackMethod>
-    </MenuItem>
 </MenuItems>

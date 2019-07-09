@@ -160,9 +160,7 @@ class Plugin(indigo.PluginBase):
         self.next_poll = time.time()
 
         self.knownDevices = self.pluginPrefs.get(u"knownDevices", indigo.Dict())        
-        
-        indigo.devices.subscribeToChanges()
-    
+            
     def shutdown(self):
         self.logger.info(u"Shutting down WeatherLink Live")
 
@@ -202,29 +200,29 @@ class Plugin(indigo.PluginBase):
         if conditions == None:
             return
         
-        for sensor in conditions:
+        for condition in conditions:
 
-            sensor_lsid = str(sensor['lsid'])
-            sensor_type = str(sensor['data_structure_type'])
-            key = "lsid-" + sensor_lsid
+            sensor_lsid = str(condition['lsid'])
+            sensor_type = str(condition['data_structure_type'])
+            sensor_key = "lsid-{}".format(sensor_lsid)
          
-            if key in self.sensorDevices:
+            if sensor_key not in self.knownDevices:
+                sensorInfo = {"lsid": sensor_lsid, "type": sensor_type}
+                self.knownDevices[sensor_key] = sensorInfo
+                self.logger.debug(u"Added sensor {} to knownDevices: {}".format(sensor_key, sensorInfo))
+                return
+                
 
-                sensorStateList = self.sensorDictToList(sensor)
-                sensorDev = self.sensorDevices[key]
-                sensorDev.updateStatesOnServer(sensorStateList)
-                self.logger.threaddebug(u"{}: Updating sensor: {}".format(sensorDev.name, sensorStateList))
-
-            elif key not in self.knownDevices:
-                sensorInfo = {"lsid": sensor_lsid, "type": sensor_type, "status": "Available"}
-                self.logger.debug(u"Adding sensor {} to knownDevices: {}".format(key, sensorInfo))
-                self.knownDevices[key] = sensorInfo
+            for sensorDev in self.sensorDevices.values():
+                if sensorDev.address == sensor_lsid:
+                    stateList = self.sensorDictToList(condition)
+                    sensorDev.updateStatesOnServer(stateList)
+                    self.logger.threaddebug(u"{}: Updating sensor: {}".format(sensorDev.name, stateList))
 
 
 ################################################################################
 #
-#   convert the raw dict the WLL provides to a device-state list, including
-#   special handling of UI states
+#   convert the raw dict the WLL provides to a device-state list, including special handling of UI states
 #
 ################################################################################
               
@@ -325,41 +323,32 @@ class Plugin(indigo.PluginBase):
         elif device.deviceTypeId == 'issSensor':
 
             device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
-            key = "lsid-" + device.pluginProps['address']
-            self.sensorDevices[key] = device
-            self.knownDevices.setitem_in_item(key, 'status', "Active")
+            self.sensorDevices[device.id] = device
             self.updateNeeded = True
 
         elif device.deviceTypeId == 'moistureSensor':
 
             device.updateStateImageOnServer(indigo.kStateImageSel.HumiditySensorOn)
-            key = "lsid-" + device.pluginProps['address']
-            self.sensorDevices[key] = device
-            self.knownDevices.setitem_in_item(key, 'status', "Active")
+            self.sensorDevices[device.id] = device
             self.updateNeeded = True
 
         elif device.deviceTypeId == 'tempHumSensor':
 
             device.updateStateImageOnServer(indigo.kStateImageSel.TemperatureSensorOn)
-            
-            key = "lsid-" + device.pluginProps['address']
-            self.sensorDevices[key] = device
-            self.knownDevices.setitem_in_item(key, 'status', "Active")
+            self.sensorDevices[device.id] = device
             self.updateNeeded = True
 
         elif device.deviceTypeId == 'baroSensor':
 
             device.updateStateImageOnServer(indigo.kStateImageSel.Auto)
-            
-            key = "lsid-" + device.pluginProps['address']
-            self.sensorDevices[key] = device
-            self.knownDevices.setitem_in_item(key, 'status', "Active")
+            self.sensorDevices[device.id] = device
             self.updateNeeded = True
 
         else:
             self.logger.warning(u"{}: Invalid device type: {}".format(device.name, device.deviceTypeId))
 
         device.stateListOrDisplayStateIdChanged()
+        self.logger.debug(u"{}: deviceStartComm complete, sensorDevices = {}".format(device.name, self.sensorDevices))
 
             
     
@@ -368,38 +357,23 @@ class Plugin(indigo.PluginBase):
         if device.deviceTypeId == "weatherlink":
             del self.weatherlinks[device.id]
         else:
-            key = "lsid-" + device.pluginProps['address']
-            try:
-                del self.sensorDevices[key]
-            except:
-                pass
+            del self.sensorDevices[device.id]
 
-        self.logger.threaddebug(u"{}: deviceStopComm complete, sensorDevices = {}".format(device.name, self.sensorDevices))
+        self.logger.debug(u"{}: deviceStopComm complete, sensorDevices = {}".format(device.name, self.sensorDevices))
             
             
     def getDeviceDisplayStateId(self, device):
-        stateID = indigo.PluginBase.getDeviceDisplayStateId(self, device)
-        self.logger.debug(u"{}: getDeviceDisplayStateId base returned: {}".format(device.name, stateID))
-        return stateID
-    
-    
-    ################################################################################
-    #
-    # delegate methods for indigo.devices.subscribeToChanges()
-    #
-    ################################################################################
-
-    def deviceDeleted(self, device):
-        indigo.PluginBase.deviceDeleted(self, device)
-
+            
         try:
-            key = "lsid-" + device.address
-            self.knownDevices.setitem_in_item(key, 'status', "Available")
-            self.logger.debug(u"deviceDeleted: {} ({})".format(device.name, device.id))
-        except Exception, e:
-            self.logger.error(u"deviceDeleted error, {}: {}".format(device.name, str(e)))
+            status_state = device.pluginProps['status_state']
+        except:
+            status_state = indigo.PluginBase.getDeviceDisplayStateId(self, device)
+            
+        self.logger.debug(u"{}: getDeviceDisplayStateId returning: {}".format(device.name, status_state))
 
-
+        return status_state
+    
+    
     ################################################################################
     #        
     # return a list of all "Available" devices (not associated with an Indigo device)
@@ -407,6 +381,7 @@ class Plugin(indigo.PluginBase):
     ################################################################################
     
     def availableDeviceList(self, filter="", valuesDict=None, typeId="", targetId=0):
+        self.logger.debug(u"availableDeviceList: filter = {}, targetId = {}".format(filter, targetId))
 
         sensorTypes = {
             '1': 'Integrated Sensor Suite',
@@ -415,15 +390,24 @@ class Plugin(indigo.PluginBase):
             '4': 'Internal Temperature/Humidity Sensor'
         }
 
-        self.logger.debug(u"availableDeviceList: filter = {}".format(filter))
         retList =[]
         for devInfo in sorted(self.knownDevices.values()):
-            if devInfo['status'] == 'Available' and devInfo['type'] == filter:
+            if devInfo['type'] == filter:
                 retList.append((devInfo['lsid'], "{}: {}".format(devInfo['lsid'], sensorTypes[filter])))
                
         retList.sort(key=lambda tup: tup[1])
+        
+#        if targetId:
+#            try:
+#                dev = indigo.devices[targetId]
+#                info = self.knownDevices[targetId]
+#                retList.insert(0, (dev.pluginProps["address"], dev.name))
+#            except:
+#                pass
+        
         self.logger.debug(u"availableDeviceList: retList = {}".format(retList))
         return retList
+        
 
     def pickWeatherLink(self, filter=None, valuesDict=None, typeId=0):
         retList = []
@@ -452,13 +436,6 @@ class Plugin(indigo.PluginBase):
     def dumpKnownDevices(self):
         self.logger.info(u"Known device list:\n" + str(self.knownDevices))
         
-    def purgeKnownDevices(self):
-        self.logger.info(u"Purging Known device list...")
-        for address, data in self.knownDevices.iteritems():
-            if data['status'] == 'Available':
-                self.logger.info(u"\t{}".format(address))       
-                del self.knownDevices[address]
-
     # doesn't do anything, just needed to force other menus to dynamically refresh
     def menuChanged(self, valuesDict, typeId, devId):
         return valuesDict
