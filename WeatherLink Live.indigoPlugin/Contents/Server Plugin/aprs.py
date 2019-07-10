@@ -1,5 +1,5 @@
 # ****************************************************************************************
-# Based on ambient_api.py:
+# Based on ambient_aprs.py:
 # 
 # MIT License
 # 
@@ -40,28 +40,21 @@ class APRS(object):
 
         self.logger = logging.getLogger("Plugin.APRS")
         self.device = device
-
-        self.send_id = 'Indigo WeatherLink Live APRS'
         
-        self.station_id  = self.device.pluginProps.get('address', None)
+        self.address     = self.device.pluginProps.get('address', "")
         self.server_host = self.device.pluginProps.get('host', 'cwop.aprs.net')
         self.server_port = self.device.pluginProps.get('port', 14580)
 
         self.iss_device =  indigo.devices[int(self.device.pluginProps.get('iss_device', None))]
         self.baro_device = indigo.devices[int(self.device.pluginProps.get('baro_device', None))]
 
-        self.logger.debug(u"APRS __init__ station_id = {}, server_host = {}, server_port = {}".format(self.station_id, self.server_host, self.server_port))
+        self.logger.debug(u"APRS __init__ station_id = {}, server_host = {}, server_port = {}".format(self.address, self.server_host, self.server_port))
 
         (latitude, longitude) = indigo.server.getLatitudeAndLongitude()
-        self.logger.debug(u"self.latitude = {}, longitude = {}".format(latitude, longitude))
 
         if latitude and longitude:
-            self.position = "{}/{}_".format(self.convert_latitude(latitude), self.convert_longitude(longitude))
+            self.position = "{}/{}".format(self.convert_latitude(latitude), self.convert_longitude(longitude))
             self.logger.debug(u"self.position = {}".format(self.position))
-
-        if self.station_id:
-            self.address = '{}>APRS,TCPIP*:'.format(self.station_id)
-            self.logger.debug(u"self.station_id = {}".format(self.address))
 
 
     def decdeg2dmm_m(self, degrees_decimal):
@@ -107,86 +100,46 @@ class APRS(object):
         return lon
 
 
-    def hg_to_mbar(self, hg_val):
-        """
-        Convert inches of mercury (inHg to tenths of millibars/tenths of hPascals (mbar/hPa)
-        :param hg_val: The value in inHg
-        :return:
-        """
-        return (hg_val / 0.029530) * 10
-
-
-    def str_or_dots(self, number, length):
-        # If parameter is None, fill with dots, otherwise pad with zero
-        retn_value = number
-
-        if not number:
-            retn_value = '.' * length
-
-        else:
-            format_type = {
-                'int': 'd',
-                'float': '.0f',
-            }[type(number).__name__]
-
-            retn_value = ''.join(('%0', str(length), format_type)) % number
-
-        return retn_value
-
-
     def send_update(self):
 
         wind_dir = int(self.iss_device.states['wind_dir_last'])
         wind_speed = int(self.iss_device.states['wind_speed_avg_last_1_min'])
         wind_gust = int(self.iss_device.states['wind_speed_hi_last_2_min'])
-        temperature = float(self.iss_device.states['temp'])
-        rain_last_hr = float(self.iss_device.states['rain_60_min']) * 100.0
-        rain_last_24_hrs = float(self.iss_device.states['rain_24_hr']) * 100.0
-        rain_since_midnight = float(self.iss_device.states['rainfall_daily']) * 100.0
+        temperature = int(self.iss_device.states['temp'])
+        rain_60_min = float(self.iss_device.states['rain_60_min']) * 100.0
+        rain_24_hr = float(self.iss_device.states['rain_24_hr']) * 100.0
+        rainfall_daily = float(self.iss_device.states['rainfall_daily']) * 100.0
         humidity = int(self.iss_device.states['hum'])
-        pressure = self.hg_to_mbar(float(self.baro_device.states['bar_absolute']))
+        pressure = (float(self.baro_device.states['bar_absolute'])/ 0.029530) * 10
 
-        # Assemble the weather data of the APRS packet
-        self.wx_data = '{}/{}g{}t{}r{}p{}P{}h{}b{}'.format(
-            self.str_or_dots(wind_dir, 3),
-            self.str_or_dots(wind_speed, 3),
-            self.str_or_dots(wind_gust, 3),
-            self.str_or_dots(temperature, 3),
-            self.str_or_dots(rain_last_hr, 3),
-            self.str_or_dots(rain_last_24_hrs, 3),
-            self.str_or_dots(rain_since_midnight, 3),
-            self.str_or_dots(humidity, 2),
-            self.str_or_dots(pressure, 5),
-        )
+        wx_data = '{:03d}/{:03d}g{:03d}t{:03}r{:03.0f}p{:03.0f}P{:03.0f}h{:02d}b{:05.0f}'.format(
+            wind_dir, wind_speed, wind_gust, temperature, rain_60_min, rain_24_hr, rainfall_daily, humidity, pressure)
+        self.logger.debug("wx_data = {}".format(wx_data))
     
-        utc_datetime_s = datetime.now().strftime("%d%H%M")
-        
-        self.packet_data = '{}@{}z{}{}{}\r\n'.format(self.address, utc_datetime_s, self.position, self.wx_data, self.send_id)
-        self.logger.debug("packet_data = {}".format(self.packet_data))
-        
-        self.send_packet(self.packet_data)
+        utc_s = datetime.now().strftime("%d%H%M")
 
-    def send_packet(self, packet):
+        packet_data = '{}>APRS,TCPIP*:@{}z{}_{}Indigo WeatherLink Live APRS\r\n'.format(self.address, utc_s, self.position, wx_data)
+        
         try:
             # Create socket and connect to server
             sSock = socket(AF_INET, SOCK_STREAM)
             sSock.connect((self.server_host, int(self.server_port)))
 
             # Log on
-            login = 'user {} pass -1 vers Indigo-aprs.py\r\n'.format(self.station_id)
+            login = 'user {} pass -1 vers Indigo-aprs.py\r\n'.format(self.address)
             sSock.send(login.encode('utf-8'))
             time.sleep(2)
 
             # Send packet
-            sSock.send(packet.encode('utf-8'))
+            sSock.send(packet_data.encode('utf-8'))
             time.sleep(2)
 
             # Close socket, must be closed to avoid buffer overflow
             sSock.shutdown(0)
             sSock.close()
 
-            self.logger.debug(u"{}: send_packet complete".format(self.device.name))
+            self.logger.debug(u"{}: send_update complete".format(self.device.name))
 
         except Exception as err:
-            self.logger.error(u"{}: send_packet error: {}".format(self.device.name, err))
+            self.logger.error(u"{}: send_update error: {}".format(self.device.name, err))
 
