@@ -102,9 +102,9 @@ class APRS(object):
 
     def send_update(self):
 
-        wind_dir = int(self.iss_device.states['wind_dir_last'])
-        wind_speed = int(self.iss_device.states['wind_speed_avg_last_1_min'])
-        wind_gust = int(self.iss_device.states['wind_speed_hi_last_2_min'])
+        wind_dir = int(self.iss_device.states['wind_dir_scalar_avg_last_10_min'])
+        wind_speed = int(self.iss_device.states['wind_speed_avg_last_10_min'])
+        wind_gust = int(self.iss_device.states['wind_speed_hi_last_10_min'])
         temperature = int(self.iss_device.states['temp'])
         rain_60_min = float(self.iss_device.states['rain_60_min']) * 100.0
         rain_24_hr = float(self.iss_device.states['rain_24_hr']) * 100.0
