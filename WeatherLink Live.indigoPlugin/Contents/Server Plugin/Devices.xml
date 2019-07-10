@@ -34,6 +34,36 @@
         </States>
         <UiDisplayStateId>status</UiDisplayStateId>
     </Device>       
+    <Device type="custom" id="aprs_sender">
+        <Name>APRS Account</Name>
+        <ConfigUI>  
+            <Field id="address" type="textfield"  defaultValue="" tooltip="APRS Account Identifier">
+                <Label>APRS Account Identifier:</Label>
+            </Field>
+            <Field id="host" type="textfield" defaultValue="cwop.aprs.net" tooltip="APRS Server Host">
+                <Label>APRS Server Host:</Label>
+            </Field>
+            <Field id="port" type="textfield" defaultValue="14580" tooltip="APRS Server Port">
+                <Label>APRS Server Port:</Label>
+            </Field>
+            <Field id="iss_device" type="menu">
+                <Label>ISS Device:</Label>
+                <List class="self" filter="" method="issDeviceList"/>
+            </Field>            
+            <Field id="baro_device" type="menu">
+                <Label>Barometer Device:</Label>
+                <List class="self" filter="" method="baroDeviceList"/>
+            </Field>            
+        </ConfigUI> 
+        <States>
+            <State id="status">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Status</TriggerLabel>
+                <ControlPageLabel>Status</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>status</UiDisplayStateId>
+    </Device>       
     <Device type="custom" id="issSensor">
         <Name>Integrated Sensor Suite</Name>
         <ConfigUI>
