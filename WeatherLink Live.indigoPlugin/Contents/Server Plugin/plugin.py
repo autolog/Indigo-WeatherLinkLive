@@ -34,6 +34,10 @@ class WeatherLink(object):
         
 
     def udp_start(self):
+    
+        if not self.device.pluginProps['enableUDP']:
+            self.logger.debug(u"{}: udp_start() aborting, not enabled".format(self.device.name))
+            return
         
         url = "http://{}:{}/v1/real_time".format(self.address, self.http_port)
         try:
@@ -73,7 +77,7 @@ class WeatherLink(object):
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
             return
 
-        self.logger.debug(u"{}: udp_start() success: broadcast_port = {}, duration = {}".format(self.device.name, json_data['data']['broadcast_port'], json_data['data']['duration']))
+        self.logger.debug(u"{}: udp_start() broadcast_port = {}, duration = {}".format(self.device.name, json_data['data']['broadcast_port'], json_data['data']['duration']))
 
         # set up socket listener
         
@@ -91,6 +95,8 @@ class WeatherLink(object):
                     { 'key':'error',    'value': err.strerror }
                 ]
                 self.device.updateStatesOnServer(stateList)
+            else:
+                self.logger.debug(u"{}: udp_start() socket listener started".format(self.device.name))
 
 
     def udp_receive(self):
@@ -216,20 +222,16 @@ class Plugin(indigo.PluginBase):
         self.logger.info(u"Starting WeatherLink Live")
 
         self.updateNeeded = False
-        self.weatherlinks = {}
-        self.sensorDevices = {}
-        self.aprs_senders = {}
+        self.weatherlinks = {}          # Dict of Indigo WeatherLink devices, indexed by device.id
+        self.sensorDevices = {}         # Dict of Indigo sensor/transmitter devices, indexed by device.id
+        self.aprs_senders = {}          # Dict of Indigo APRS account devices, indexed by device.id
+        self.knownDevices = {}          # Dict of sensor/transmitter devices received by base station, indexed by lsid
         
         self.next_poll = time.time()
-
         self.next_aprs_update = time.time() + 10
-        
-        self.knownDevices = self.pluginPrefs.get(u"knownDevices", indigo.Dict())        
-            
+                    
     def shutdown(self):
         self.logger.info(u"Shutting down WeatherLink Live")
-
-        indigo.activePlugin.pluginPrefs[u"knownDevices"] = self.knownDevices
 
 
     def runConcurrentThread(self):
@@ -276,12 +278,11 @@ class Plugin(indigo.PluginBase):
 
             sensor_lsid = str(condition['lsid'])
             sensor_type = str(condition['data_structure_type'])
-            sensor_key = "lsid-{}".format(sensor_lsid)
          
-            if sensor_key not in self.knownDevices:
+            if sensor_lsid not in self.knownDevices:
                 sensorInfo = {"lsid": sensor_lsid, "type": sensor_type}
-                self.knownDevices[sensor_key] = sensorInfo
-                self.logger.debug(u"Added sensor {} to knownDevices: {}".format(sensor_key, sensorInfo))
+                self.knownDevices[sensor_lsid] = sensorInfo
+                self.logger.debug(u"Added sensor {} to knownDevices: {}".format(sensor_lsid, sensorInfo))
                 return
                 
 
@@ -401,6 +402,8 @@ class Plugin(indigo.PluginBase):
                 return True           
             if origDev.pluginProps.get('port', None) != newDev.pluginProps.get('port', None):
                 return True           
+            if origDev.pluginProps.get('enableUDP', None) != newDev.pluginProps.get('enableUDP', None):
+                return True           
         else:
             if origDev.pluginProps.get('status_state', None) != newDev.pluginProps.get('status_state', None):
                 return True           
@@ -455,11 +458,11 @@ class Plugin(indigo.PluginBase):
                 device.updateStateImageOnServer(indigo.kStateImageSel.Auto)
 
             self.sensorDevices[device.id] = device
-            self.updateNeeded = True
 
         else:
             self.logger.warning(u"{}: Invalid device type: {}".format(device.name, device.deviceTypeId))
 
+        self.updateNeeded = True
         self.logger.debug(u"{}: deviceStartComm complete, sensorDevices = {}".format(device.name, self.sensorDevices))
 
             
@@ -505,7 +508,7 @@ class Plugin(indigo.PluginBase):
         }
 
         retList =[]
-        for devInfo in sorted(self.knownDevices.values()):
+        for devInfo in self.knownDevices.values():
             if devInfo['type'] == filter:
                 retList.append((devInfo['lsid'], "{}: {}".format(devInfo['lsid'], sensorTypes[filter])))               
         retList.sort(key=lambda tup: tup[1])

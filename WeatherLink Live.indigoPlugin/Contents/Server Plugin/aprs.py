@@ -48,13 +48,11 @@ class APRS(object):
         self.iss_device =  indigo.devices[int(self.device.pluginProps.get('iss_device', None))]
         self.baro_device = indigo.devices[int(self.device.pluginProps.get('baro_device', None))]
 
-        self.logger.debug(u"APRS __init__ station_id = {}, server_host = {}, server_port = {}".format(self.address, self.server_host, self.server_port))
+        self.logger.debug(u"{}: APRS station_id = {}, server_host = {}, server_port = {}".format(self.device.name, self.address, self.server_host, self.server_port))
 
         (latitude, longitude) = indigo.server.getLatitudeAndLongitude()
-
-        if latitude and longitude:
-            self.position = "{}/{}".format(self.convert_latitude(latitude), self.convert_longitude(longitude))
-            self.logger.debug(u"self.position = {}".format(self.position))
+        self.position = "{}/{}".format(self.convert_latitude(latitude), self.convert_longitude(longitude))
+        self.logger.debug(u"{}: self.position = {}".format(self.device.name, self.position))
 
 
     def decdeg2dmm_m(self, degrees_decimal):
@@ -114,7 +112,7 @@ class APRS(object):
 
         wx_data = '{:03d}/{:03d}g{:03d}t{:03.0f}r{:03.0f}p{:03.0f}P{:03.0f}h{:02d}b{:05.0f}'.format(
             wind_dir, wind_speed, wind_gust, temperature, rain_60_min, rain_24_hr, rainfall_daily, humidity, pressure)
-        self.logger.debug("wx_data = {}".format(wx_data))
+        self.logger.debug(u"{}: wx_data = {}".format(self.device.name, wx_data))
     
         utc_s = datetime.now().strftime("%d%H%M")
 

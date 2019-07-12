@@ -9,6 +9,12 @@
             <Field id="port" type="textfield" defaultValue="80" tooltip="Port number for WeatherLink.">
                 <Label>Port:</Label>
             </Field>
+            <Field id="enableUDP" type="checkbox" defaultValue="true">
+                <Label>Enable continuous updates:</Label>
+            </Field>
+            <Field id="udpNote" type="label" fontSize="small" fontColor="darkgray">
+                <Label>Enables the UDP broadcast from the WeatherLink device for continuous (~2.5 seconds) updates of wind and rain data.</Label>
+            </Field>
         </ConfigUI> 
         <States>
             <State id="did">
@@ -40,12 +46,6 @@
             <Field id="address" type="textfield"  defaultValue="" tooltip="APRS Account Identifier">
                 <Label>APRS Account Identifier:</Label>
             </Field>
-            <Field id="host" type="textfield" defaultValue="cwop.aprs.net" tooltip="APRS Server Host">
-                <Label>APRS Server Host:</Label>
-            </Field>
-            <Field id="port" type="textfield" defaultValue="14580" tooltip="APRS Server Port">
-                <Label>APRS Server Port:</Label>
-            </Field>
             <Field id="iss_device" type="menu">
                 <Label>ISS Device:</Label>
                 <List class="self" filter="" method="issDeviceList"/>
@@ -54,6 +54,15 @@
                 <Label>Barometer Device:</Label>
                 <List class="self" filter="" method="baroDeviceList"/>
             </Field>            
+            <Field id="serverNote" type="label" fontSize="small" fontColor="darkgray">
+                <Label>Do not change the following fields unless you know exactly what you're doing!</Label>
+            </Field>
+            <Field id="host" type="textfield" defaultValue="cwop.aprs.net" tooltip="APRS Server Host">
+                <Label>APRS Server Host:</Label>
+            </Field>
+            <Field id="port" type="textfield" defaultValue="14580" tooltip="APRS Server Port">
+                <Label>APRS Server Port:</Label>
+            </Field>
         </ConfigUI> 
         <States>
             <State id="status">
