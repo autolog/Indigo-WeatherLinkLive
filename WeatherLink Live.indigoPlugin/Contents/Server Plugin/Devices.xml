@@ -41,10 +41,10 @@
         <UiDisplayStateId>status</UiDisplayStateId>
     </Device>       
     <Device type="custom" id="aprs_sender">
-        <Name>APRS Account</Name>
+        <Name>CWOP/APRS Account</Name>
         <ConfigUI>  
-            <Field id="address" type="textfield"  defaultValue="" tooltip="APRS Account Identifier">
-                <Label>APRS Account Identifier:</Label>
+            <Field id="address" type="textfield"  defaultValue="" tooltip="CWOP Registration Number">
+                <Label>CWOP Registration Number:</Label>
             </Field>
             <Field id="iss_device" type="menu">
                 <Label>ISS Device:</Label>
