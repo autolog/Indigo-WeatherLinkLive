@@ -283,6 +283,7 @@ class Plugin(indigo.PluginBase):
                 sensorInfo = {"lsid": sensor_lsid, "type": sensor_type}
                 self.knownDevices[sensor_lsid] = sensorInfo
                 self.logger.debug(u"Added sensor {} to knownDevices: {}".format(sensor_lsid, sensorInfo))
+                continue
                 
 
             for sensorDev in self.sensorDevices.values():
@@ -393,24 +394,6 @@ class Plugin(indigo.PluginBase):
     ########################################
     # Device Management Methods
     ########################################
-
-    def didDeviceCommPropertyChange(self, origDev, newDev):
-    
-        if newDev.deviceTypeId == "weatherlink":
-            if origDev.pluginProps.get('address', None) != newDev.pluginProps.get('address', None):
-                return True           
-            if origDev.pluginProps.get('port', None) != newDev.pluginProps.get('port', None):
-                return True           
-            if origDev.pluginProps.get('enableUDP', None) != newDev.pluginProps.get('enableUDP', None):
-                return True           
-
-        elif newDev.deviceTypeId == "aprs_sender":
-                return True           
-        else:
-            if origDev.pluginProps.get('status_state', None) != newDev.pluginProps.get('status_state', None):
-                return True           
-        
-        return False
       
     def deviceStartComm(self, device):
         self.logger.debug(u"{}: Starting Device".format(device.name))
