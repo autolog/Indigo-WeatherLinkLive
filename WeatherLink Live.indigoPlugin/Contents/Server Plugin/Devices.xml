@@ -76,11 +76,11 @@
     <Device type="custom" id="pws_sender">
         <Name>PWS Network Account</Name>
         <ConfigUI>  
-            <Field id="address" type="textfield"  defaultValue="" tooltip="PWS SID">
-                <Label>PWS Network account SID:</Label>
+            <Field id="address" type="textfield"  defaultValue="" tooltip="PWS Weather SID">
+                <Label>PWS Weather SID:</Label>
             </Field>
-            <Field id="password" type="textfield"  defaultValue="" tooltip="PWS Password">
-                <Label>PWS Network account password:</Label>
+            <Field id="password" type="textfield"  defaultValue="" tooltip="PWS Weather Password">
+                <Label>PWS Weather password:</Label>
             </Field>
             <Field id="iss_device" type="menu">
                 <Label>ISS Device:</Label>

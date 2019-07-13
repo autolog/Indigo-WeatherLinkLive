@@ -7,7 +7,8 @@ import socket
 import json
 import logging
 import requests
-from aprs import APRS
+import aprs
+import pws
 
 kCurDevVersCount = 0        # current version of plugin devices
 
@@ -418,7 +419,11 @@ class Plugin(indigo.PluginBase):
             
         elif device.deviceTypeId == "aprs_sender":
  
-            self.aprs_senders[device.id] = APRS(device)
+            self.aprs_senders[device.id] = aprs.APRS(device)
+            
+        elif device.deviceTypeId == "pws_sender":
+ 
+            self.aprs_senders[device.id] = pws.PWS(device)
             
         elif device.deviceTypeId in ['issSensor', 'moistureSensor', 'tempHumSensor', 'baroSensor']:
 
@@ -456,7 +461,7 @@ class Plugin(indigo.PluginBase):
         self.logger.debug(u"{}: Stopping Device".format(device.name))
         if device.deviceTypeId == "weatherlink":
             del self.weatherlinks[device.id]
-        elif device.deviceTypeId == "aprs_sender":
+        elif device.deviceTypeId in ["aprs_sender", "pws_sender"]:
             del self.aprs_senders[device.id]
         else:
             del self.sensorDevices[device.id]

@@ -45,8 +45,8 @@ class APRS(object):
         self.server_host = self.device.pluginProps.get('host', 'cwop.aprs.net')
         self.server_port = self.device.pluginProps.get('port', 14580)
 
-        self.iss_device =  indigo.devices[int(self.device.pluginProps.get('iss_device', None))]
-        self.baro_device = indigo.devices[int(self.device.pluginProps.get('baro_device', None))]
+        self.iss_device =  int(self.device.pluginProps.get('iss_device', None))
+        self.baro_device = int(self.device.pluginProps.get('baro_device', None))
 
         self.logger.debug(u"{}: APRS station_id = {}, server_host = {}, server_port = {}".format(self.device.name, self.address, self.server_host, self.server_port))
 
@@ -99,16 +99,19 @@ class APRS(object):
 
 
     def send_update(self):
+    
+        iss_device = indigo.devices[self.iss_device]
+        baro_device = indigo.devices[self.baro_device]
 
-        wind_dir = int(self.iss_device.states['wind_dir_scalar_avg_last_10_min'])
-        wind_speed = int(self.iss_device.states['wind_speed_avg_last_10_min'])
-        wind_gust = int(self.iss_device.states['wind_speed_hi_last_10_min'])
-        temperature = float(self.iss_device.states['temp'])
-        rain_60_min = float(self.iss_device.states['rain_60_min']) * 100.0
-        rain_24_hr = float(self.iss_device.states['rain_24_hr']) * 100.0
-        rainfall_daily = float(self.iss_device.states['rainfall_daily']) * 100.0
-        humidity = int(self.iss_device.states['hum'])
-        pressure = (float(self.baro_device.states['bar_absolute'])/ 0.029530) * 10
+        wind_dir = int(iss_device.states['wind_dir_scalar_avg_last_10_min'])
+        wind_speed = int(iss_device.states['wind_speed_avg_last_10_min'])
+        wind_gust = int(iss_device.states['wind_speed_hi_last_10_min'])
+        temperature = float(iss_device.states['temp'])
+        rain_60_min = float(iss_device.states['rain_60_min']) * 100.0
+        rain_24_hr = float(iss_device.states['rain_24_hr']) * 100.0
+        rainfall_daily = float(iss_device.states['rainfall_daily']) * 100.0
+        humidity = int(iss_device.states['hum'])
+        pressure = (float(baro_device.states['bar_absolute'])/ 0.029530) * 10
 
         wx_data = '{:03d}/{:03d}g{:03d}t{:03.0f}r{:03.0f}p{:03.0f}P{:03.0f}h{:02d}b{:05.0f}'.format(
             wind_dir, wind_speed, wind_gust, temperature, rain_60_min, rain_24_hr, rainfall_daily, humidity, pressure)
