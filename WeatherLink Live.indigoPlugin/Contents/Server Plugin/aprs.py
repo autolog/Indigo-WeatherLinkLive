@@ -116,7 +116,7 @@ class APRS(object):
     
         utc_s = datetime.now().strftime("%d%H%M")
 
-        packet_data = '{}>APRS,TCPIP*:@{}z{}_{}Indigo WeatherLink Live APRS\r\n'.format(self.address, utc_s, self.position, wx_data)
+        packet_data = '{}>APRS,TCPIP*:@{}z{}_{}Indigo WeatherLink Live\r\n'.format(self.address, utc_s, self.position, wx_data)
         
         try:
             # Create socket and connect to server
