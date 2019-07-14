@@ -346,11 +346,11 @@ class Plugin(indigo.PluginBase):
                          'wind_dir_scalar_avg_last_10_min', 'wind_dir_at_hi_speed_last_10_min']:
                 sensorList.append({'key': key, 'value': value, 'decimalPlaces': 0, 'uiValue': u'{:d}°'.format(value)})
             
-            elif key in ['rain_storm_start_at', 'rain_storm_last', 'rain_storm_last_end_at', 'rain_storm_last_start_at', 'timestamp']:
+            elif key in ['rain_storm_start_at', 'rain_storm_last_end_at', 'rain_storm_last_start_at', 'timestamp']:
                 time_string = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(float(value)))
                 sensorList.append({'key': key, 'value': time_string, 'decimalPlaces': 0, 'uiValue': u'{}'.format(time_string)})
 
-            elif key in ['rain_rate_last', 'rain_rate_hi', 'rain_rate_hi_last_15_min']:
+            elif key in ['rain_rate_last', 'rain_rate_hi', 'rain_rate_hi_last_15_min', 'rain_storm_last']:
                 rain = float(value) * factor
                 sensorList.append({'key': key, 'value': rain, 'decimalPlaces': 2, 'uiValue': u'{:.2f} {}/hr'.format(rain, units)})
             

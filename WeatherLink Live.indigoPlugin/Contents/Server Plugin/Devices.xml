@@ -302,7 +302,7 @@
                 <ControlPageLabel>Total rain count since break</ControlPageLabel>
             </State>
             <State id="rain_storm_last">
-                <ValueType>String</ValueType>
+                <ValueType>Number</ValueType>
                 <TriggerLabel>Total rain count since break</TriggerLabel>
                 <ControlPageLabel>Total rain count since break</ControlPageLabel>
             </State>
