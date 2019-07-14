@@ -13,7 +13,6 @@ from socket import socket, AF_INET, SOCK_STREAM
 
 class PWS(object):
 
-
     def __init__(self, device):
 
         self.logger = logging.getLogger("Plugin.PWS")
@@ -43,16 +42,19 @@ class PWS(object):
             'dateutc': datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
         
             'tempf': float(iss_device.states['temp']),
-            'baromin': float(baro_device.states['bar_absolute']),
             'dewptf': float(iss_device.states['dew_point']),
+
+            'baromin': float(baro_device.states['bar_absolute']),
             'humidity': float(iss_device.states['hum']),
-            'rainin': float(iss_device.states['rain_rate_last']),
+
+            'rainin': float(iss_device.states['rain_60_min']),
             'dailyrainin': float(iss_device.states['rainfall_daily']),
             'monthrainin': float(iss_device.states['rainfall_monthly']),
             'yearrainin': float(iss_device.states['rainfall_year']),
+
             'windspeedmph': float(iss_device.states['wind_speed_avg_last_10_min']),
             'windgustmph': float(iss_device.states['wind_speed_hi_last_10_min']),
-            'winddir': float(iss_device.states['wind_dir_scalar_avg_last_10_min']),
+            'winddir': float(iss_device.states['wind_dir_scalar_avg_last_10_min'])
         }
 
         
