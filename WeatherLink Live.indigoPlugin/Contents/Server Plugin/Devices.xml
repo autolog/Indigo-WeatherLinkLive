@@ -27,11 +27,6 @@
                 <TriggerLabel>Time Stamp</TriggerLabel>
                 <ControlPageLabel>Time Stamp</ControlPageLabel>
             </State>
-            <State id="error">
-                <ValueType>String</ValueType>
-                <TriggerLabel>Error</TriggerLabel>
-                <ControlPageLabel>Error</ControlPageLabel>
-            </State>
             <State id="status">
                 <ValueType>String</ValueType>
                 <TriggerLabel>Status</TriggerLabel>
@@ -70,6 +65,11 @@
                 <TriggerLabel>Status</TriggerLabel>
                 <ControlPageLabel>Status</ControlPageLabel>
             </State>
+            <State id="timestamp">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Time Stamp</TriggerLabel>
+                <ControlPageLabel>Time Stamp</ControlPageLabel>
+            </State>
         </States>
         <UiDisplayStateId>status</UiDisplayStateId>
     </Device>       
@@ -105,6 +105,11 @@
                 <ValueType>String</ValueType>
                 <TriggerLabel>Status</TriggerLabel>
                 <ControlPageLabel>Status</ControlPageLabel>
+            </State>
+            <State id="timestamp">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Time Stamp</TriggerLabel>
+                <ControlPageLabel>Time Stamp</ControlPageLabel>
             </State>
         </States>
         <UiDisplayStateId>status</UiDisplayStateId>

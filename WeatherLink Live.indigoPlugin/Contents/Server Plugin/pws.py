@@ -29,18 +29,13 @@ class PWS(object):
         self.logger.debug(u"{}: PWS station_id = {}, server_host = {}, server_port = {}".format(self.device.name, self.address, self.server_host, self.server_port))
 
 
-    def safe_float(self, val):
-    
-        try:
-            ret = float(val)
-        except ValueError:
-            self.logger.debug(u"{}: float conversion value error, input value = {}".format(self.device.name, val))
-            return 0.0
-        except Exception as err:
-            self.logger.debug(u"{}: float conversion error, input value = {}, error = {}".format(self.device.name, val, err))
-            return 0.0
-        else:
-            return ret
+    def __del__(self):
+        stateList = [
+            { 'key':'status',   'value':  "Off"},
+            { 'key':'timestamp','value':  datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        ]
+        self.device.updateStatesOnServer(stateList)
+        self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
 
 
     def send_update(self):
@@ -56,31 +51,45 @@ class PWS(object):
             'softwaretype': 'Indigo WeatherLink Live', 
             'dateutc': datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
         
-            'tempf': self.safe_float(iss_device.states['temp']),
-            'dewptf': self.safe_float(iss_device.states['dew_point']),
+            'tempf': float(iss_device.states['temp']),
+            'dewptf': float(iss_device.states['dew_point']),
 
-            'baromin': self.safe_float(baro_device.states['bar_absolute']),
-            'humidity': self.safe_float(iss_device.states['hum']),
+            'baromin': float(baro_device.states['bar_absolute']),
+            'humidity': float(iss_device.states['hum']),
 
-            'rainin': self.safe_float(iss_device.states['rain_60_min']),
-            'dailyrainin': self.safe_float(iss_device.states['rainfall_daily']),
-            'monthrainin': self.safe_float(iss_device.states['rainfall_monthly']),
-            'yearrainin': self.safe_float(iss_device.states['rainfall_year']),
+            'rainin': float(iss_device.states['rain_60_min']),
+            'dailyrainin': float(iss_device.states['rainfall_daily']),
+            'monthrainin': float(iss_device.states['rainfall_monthly']),
+            'yearrainin': float(iss_device.states['rainfall_year']),
 
-            'windspeedmph': self.safe_float(iss_device.states['wind_speed_avg_last_10_min']),
-            'windgustmph': self.safe_float(iss_device.states['wind_speed_hi_last_10_min']),
-            'winddir': self.safe_float(iss_device.states['wind_dir_scalar_avg_last_10_min'])
+            'windspeedmph': float(iss_device.states['wind_speed_avg_last_10_min']),
+            'windgustmph': float(iss_device.states['wind_speed_hi_last_10_min']),
+            'winddir': float(iss_device.states['wind_dir_scalar_avg_last_10_min'])
         }
         
         self.logger.debug(u"{}: PWS upload data = {}".format(self.device.name,data))
             
         try:
             r = requests.get(url, params=data)
-            self.logger.debug(u"{}: PWS url = {}".format(self.device.name, r.url))
-            self.logger.debug(u"{}: PWS r.status_code = {}".format(self.device.name, r.status_code))
-            self.logger.debug(u"{}: PWS response = {}".format(self.device.name, r.text))
-            if not r.text.find('Logged and posted') >= 0:
-                self.logger.error(u"{}: send_update error: {}".format(self.device.name, r.text))
         except Exception as err:
             self.logger.error(u"{}: send_update error: {}".format(self.device.name, err))
+            status = "Request Error"
+            stateImage = indigo.kStateImageSel.SensorTripped
+        else:
+            if not r.text.find('Logged and posted') >= 0:
+                self.logger.error(u"{}: send_update error: {}".format(self.device.name, r.text))
+                status = "Data Error"
+                stateImage = indigo.kStateImageSel.SensorTripped
+            else:
+                self.logger.debug(u"{}: send_update complete".format(self.device.name))
+                status = "OK"
+                stateImage = indigo.kStateImageSel.SensorOn
 
+        stateList = [
+            { 'key':'status',   'value':  status},
+            { 'key':'timestamp','value':  datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        ]
+        self.device.updateStatesOnServer(stateList)
+        self.device.updateStateImageOnServer(stateImage)
+
+        

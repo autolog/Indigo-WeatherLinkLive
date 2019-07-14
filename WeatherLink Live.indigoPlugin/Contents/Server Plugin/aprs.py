@@ -54,6 +54,22 @@ class APRS(object):
         self.position = "{}/{}".format(self.convert_latitude(latitude), self.convert_longitude(longitude))
         self.logger.debug(u"{}: self.position = {}".format(self.device.name, self.position))
 
+        stateList = [
+            { 'key':'status',   'value':  "Started"},
+            { 'key':'timestamp','value':  datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        ]
+        self.device.updateStatesOnServer(stateList)
+        self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
+
+
+    def __del__(self):
+        stateList = [
+            { 'key':'status',   'value':  "Off"},
+            { 'key':'timestamp','value':  datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        ]
+        self.device.updateStatesOnServer(stateList)
+        self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
+
 
     def decdeg2dmm_m(self, degrees_decimal):
         is_positive = degrees_decimal >= 0
@@ -97,47 +113,21 @@ class APRS(object):
 
         return lon
 
-    def safe_float(self, val):
-    
-        try:
-            ret = float(val)
-        except ValueError:
-            self.logger.debug(u"{}: float conversion value error, input value = {}".format(self.device.name, val))
-            return 0.0
-        except Exception as err:
-            self.logger.debug(u"{}: float conversion error, input value = {}, error = {}".format(self.device.name, val, err))
-            return 0.0
-        else:
-            return ret
-
-    def safe_int(self, val):
-    
-        try:
-            ret = int(val)
-        except ValueError:
-            self.logger.debug(u"{}: int conversion value error, input value = {}".format(self.device.name, val))
-            return 0
-        except Exception as err:
-            self.logger.debug(u"{}: int conversion error, input value = {}, error = {}".format(self.device.name, val, err))
-            return 0
-        else:
-            return ret
-
 
     def send_update(self):
     
         iss_device = indigo.devices[self.iss_device]
         baro_device = indigo.devices[self.baro_device]
 
-        wind_dir = self.safe_int(iss_device.states['wind_dir_scalar_avg_last_10_min'])
-        wind_speed = self.safe_int(iss_device.states['wind_speed_avg_last_10_min'])
-        wind_gust = self.safe_int(iss_device.states['wind_speed_hi_last_10_min'])
-        temperature = self.safe_float(iss_device.states['temp'])
-        rain_60_min = self.safe_float(iss_device.states['rain_60_min']) * 100.0
-        rain_24_hr = self.safe_float(iss_device.states['rain_24_hr']) * 100.0
-        rainfall_daily = self.safe_float(iss_device.states['rainfall_daily']) * 100.0
-        humidity = self.safe_int(iss_device.states['hum'])
-        pressure = (self.safe_float(baro_device.states['bar_absolute'])/ 0.029530) * 10
+        wind_dir = int(iss_device.states['wind_dir_scalar_avg_last_10_min'])
+        wind_speed = int(iss_device.states['wind_speed_avg_last_10_min'])
+        wind_gust = int(iss_device.states['wind_speed_hi_last_10_min'])
+        temperature = float(iss_device.states['temp'])
+        rain_60_min = float(iss_device.states['rain_60_min']) * 100.0
+        rain_24_hr = float(iss_device.states['rain_24_hr']) * 100.0
+        rainfall_daily = float(iss_device.states['rainfall_daily']) * 100.0
+        humidity = int(iss_device.states['hum'])
+        pressure = (float(baro_device.states['bar_absolute'])/ 0.029530) * 10
 
         wx_data = '{:03d}/{:03d}g{:03d}t{:03.0f}r{:03.0f}p{:03.0f}P{:03.0f}h{:02d}b{:05.0f}'.format(
             wind_dir, wind_speed, wind_gust, temperature, rain_60_min, rain_24_hr, rainfall_daily, humidity, pressure)
@@ -165,8 +155,21 @@ class APRS(object):
             sSock.shutdown(0)
             sSock.close()
 
-            self.logger.debug(u"{}: send_update complete".format(self.device.name))
-
         except Exception as err:
             self.logger.error(u"{}: send_update error: {}".format(self.device.name, err))
+            status = "Send Error"
+            stateImage = indigo.kStateImageSel.SensorTripped
+            
+        else:
+            self.logger.debug(u"{}: send_update complete".format(self.device.name))
+            status = "OK"
+            stateImage = indigo.kStateImageSel.SensorOn
+
+        stateList = [
+            { 'key':'status',   'value':  status},
+            { 'key':'timestamp','value':  datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        ]
+        self.device.updateStatesOnServer(stateList)
+        self.device.updateStateImageOnServer(stateImage)
+  
 

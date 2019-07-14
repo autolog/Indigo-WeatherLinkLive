@@ -47,7 +47,6 @@ class WeatherLink(object):
             self.logger.error(u"{}: udp_start() RequestException: {}".format(self.device.name, err))
             stateList = [
                 { 'key':'status',   'value': 'HTTP Error'},
-                { 'key':'error',    'value': err.strerror}
             ]
             self.device.updateStatesOnServer(stateList)
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
@@ -59,7 +58,6 @@ class WeatherLink(object):
             self.logger.error(u"{}: udp_start() JSON decode error: {}".format(self.device.name, err))
             stateList = [
                 { 'key':'status',   'value':'JSON Error'},
-                { 'key':'error',    'value': err.strerror}
             ]
             self.device.updateStatesOnServer(stateList)
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
@@ -72,7 +70,6 @@ class WeatherLink(object):
                 self.logger.error(u"{}: udp_start() error, code: {}, message: {}".format(self.device.name, json_data['error']['code'], json_data['error']['message']))
             stateList = [
                 { 'key':'status',   'value': 'Server Error'},
-                { 'key':'error',    'value': json_data['error']}
             ]
             self.device.updateStatesOnServer(stateList)
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
@@ -93,7 +90,6 @@ class WeatherLink(object):
                 self.logger.error(u"{}: udp_start() RequestException: {}".format(self.device.name, err))
                 stateList = [
                     { 'key':'status',   'value': 'Socket Error'},
-                    { 'key':'error',    'value': err.strerror }
                 ]
                 self.device.updateStatesOnServer(stateList)
             else:
@@ -114,7 +110,6 @@ class WeatherLink(object):
             self.logger.error(u"{}: udp_receive socket error: {}".format(device.name, err))
             stateList = [
                 { 'key':'status',   'value':'socket Error'},
-                { 'key':'error',    'value': err.strerror}
             ]
             self.device.updateStatesOnServer(stateList)
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
@@ -128,7 +123,6 @@ class WeatherLink(object):
             self.logger.error(u"{}: udp_receive JSON decode error: {}".format(self.device.name, err))
             stateList = [
                 { 'key':'status',   'value':'JSON Error'},
-                { 'key':'error',    'value': err.strerror}
             ]
             self.device.updateStatesOnServer(stateList)
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
@@ -157,7 +151,6 @@ class WeatherLink(object):
             self.logger.error(u"{}: http_poll RequestException: {}".format(self.device.name, err))
             stateList = [
                 { 'key':'status',   'value': 'HTTP Error'},
-                { 'key':'error',    'value': err.strerror}
             ]
             self.device.updateStatesOnServer(stateList)
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
@@ -169,7 +162,6 @@ class WeatherLink(object):
             self.logger.error(u"{}: http_poll JSON decode error: {}".format(self.device.name, err))
             stateList = [
                 { 'key':'status',   'value': 'JSON Error'},
-                { 'key':'error',    'value': err.strerror}
             ]
             self.device.updateStatesOnServer(stateList)
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
@@ -181,7 +173,6 @@ class WeatherLink(object):
             self.logger.error(u"{}: http_poll Bad return code: {}".format(self.device.name, json_data['error']))
             stateList = [
                 { 'key':'status',   'value': 'Server Error'},
-                { 'key':'error',    'value': json_data['error']}
             ]
             self.device.updateStatesOnServer(stateList)
             self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorTripped)
@@ -194,7 +185,6 @@ class WeatherLink(object):
 
         stateList = [
             { 'key':'status',   'value':  'OK'},
-            { 'key':'error',    'value':  'None'},
             { 'key':'did',      'value':  json_data['data']['did']},
             { 'key':'timestamp','value':  time_string}
         ]
@@ -284,7 +274,6 @@ class Plugin(indigo.PluginBase):
                 sensorInfo = {"lsid": sensor_lsid, "type": sensor_type}
                 self.knownDevices[sensor_lsid] = sensorInfo
                 self.logger.debug(u"Added sensor {} to knownDevices: {}".format(sensor_lsid, sensorInfo))
-                continue
                 
 
             for sensorDev in self.sensorDevices.values():
@@ -313,7 +302,7 @@ class Plugin(indigo.PluginBase):
         
         sensorList = []
         for key, value in sensor_dict.items():
-        
+                    
             # consolidate redundant states (same info from http and udp with different names)
             if key == "rainfall_last_15_min":
                 key = "rain_15_min"
@@ -322,11 +311,11 @@ class Plugin(indigo.PluginBase):
             elif key == "rainfall_last_24_hr":
                 key = "rain_24_hr"
 
-        
-            if value == None:
-                sensorList.append({'key': key, 'value': ''})
+            if not (isinstance(value, int) or isinstance(value, float)):
+                self.logger.debug("sensorDictToList: key = {}, value = {} ({}) coerced to value 0".format(key, value, type(value)))
+                value = 0
             
-            elif key in ['temp','temp_in', 'dew_point', 'dew_point_in', 'heat_index_in', 'wind_chill', 'wet_bulb', 'heat_index', 'thw_index', 'thsw_index']:
+            if key in ['temp','temp_in', 'dew_point', 'dew_point_in', 'heat_index_in', 'wind_chill', 'wet_bulb', 'heat_index', 'thw_index', 'thsw_index']:
                 sensorList.append({'key': key, 'value': value, 'decimalPlaces': 1, 'uiValue': u'{:.1f} °F'.format(value)})
                 
             elif key in ['temp_1','temp_2', 'temp_3', 'temp_4']:
