@@ -10,7 +10,7 @@ import requests
 
 from datetime import datetime
 
-class PWS(object):
+class WU(object):
 
     def __init__(self, device):
 
@@ -19,7 +19,7 @@ class PWS(object):
         
         self.address     = self.device.pluginProps.get('address', None)
         self.password    = self.device.pluginProps.get('password', None)
-        self.server_host = self.device.pluginProps.get('host', 'www.pwsweather.com')
+        self.server_host = self.device.pluginProps.get('host', 'weatherstation.wunderground.com')
         self.server_port = self.device.pluginProps.get('port', 80)
 
         self.iss_device =  int(self.device.pluginProps.get('iss_device', None))
@@ -46,8 +46,8 @@ class PWS(object):
 
         self.next_update = time.time() + self.updateFrequency
 
-        URI = "/pwsupdate/pwsupdate.php"
-        url = "http://{}:{}/{}".format(self.server_host, self.server_port, URI)
+        URI = "/weatherstation/updateweatherstation.php"
+        url = "http://{}:{}{}".format(self.server_host, self.server_port, URI)
         iss_device = indigo.devices[self.iss_device]
         baro_device = indigo.devices[self.baro_device]
         data = {
@@ -65,25 +65,24 @@ class PWS(object):
 
             'rainin': float(iss_device.states['rain_60_min']),
             'dailyrainin': float(iss_device.states['rainfall_daily']),
-            'monthrainin': float(iss_device.states['rainfall_monthly']),
-            'yearrainin': float(iss_device.states['rainfall_year']),
 
             'windspeedmph': float(iss_device.states['wind_speed_avg_last_10_min']),
-            'windgustmph': float(iss_device.states['wind_speed_hi_last_10_min']),
             'winddir': float(iss_device.states['wind_dir_scalar_avg_last_10_min']),
 
+            'windgustmph': float(iss_device.states['wind_speed_hi_last_10_min']),
+            'windgustdir': float(iss_device.states['wind_dir_at_hi_speed_last_10_min']),
         }
         
-        self.logger.debug(u"{}: PWS upload data = {}".format(self.device.name,data))
+        self.logger.debug(u"{}: WU upload data = {}".format(self.device.name, data))
             
-        try:
-            r = requests.get(url, params=data)
+        try:            
+           r = requests.get(url, params=data)
         except Exception as err:
             self.logger.error(u"{}: send_update error: {}".format(self.device.name, err))
             status = "Request Error"
             stateImage = indigo.kStateImageSel.SensorTripped
         else:
-            if not r.text.find('Logged and posted') >= 0:
+            if not r.text.find('success') >= 0:
                 self.logger.error(u"{}: send_update error: {}".format(self.device.name, r.text))
                 status = "Data Error"
                 stateImage = indigo.kStateImageSel.SensorTripped

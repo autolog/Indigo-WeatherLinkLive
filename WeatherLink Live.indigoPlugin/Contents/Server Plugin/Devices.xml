@@ -9,6 +9,9 @@
             <Field id="port" type="textfield" defaultValue="80" tooltip="Port number for WeatherLink.">
                 <Label>Port:</Label>
             </Field>
+            <Field id="pollingFrequency" type="textfield" defaultValue="10">
+                <Label>Poll WeatherLink Live every (minutes):</Label>
+            </Field>
             <Field id="enableUDP" type="checkbox" defaultValue="true">
                 <Label>Enable continuous updates:</Label>
             </Field>
@@ -49,6 +52,9 @@
                 <Label>Barometer Device:</Label>
                 <List class="self" filter="" method="baroDeviceList"/>
             </Field>            
+            <Field id="updateFrequency" type="textfield" defaultValue="10">
+                <Label>Send updates to CWOP every (minutes):</Label>
+            </Field>
             <Field id="serverNote" type="label" fontSize="small" fontColor="darkgray">
                 <Label>Do not change the following fields unless you know exactly what you're doing!</Label>
             </Field>
@@ -90,14 +96,61 @@
                 <Label>Barometer Device:</Label>
                 <List class="self" filter="" method="baroDeviceList"/>
             </Field>            
+            <Field id="updateFrequency" type="textfield" defaultValue="10">
+                <Label>Send updates to PWS Weather every (minutes):</Label>
+            </Field>
             <Field id="serverNote" type="label" fontSize="small" fontColor="darkgray">
                 <Label>Do not change the following fields unless you know exactly what you're doing!</Label>
             </Field>
             <Field id="host" type="textfield" defaultValue="www.pwsweather.com" tooltip="PWS Server">
-                <Label>APRS Server Host:</Label>
+                <Label>PWS Server Host:</Label>
             </Field>
             <Field id="port" type="textfield" defaultValue="80" tooltip="PWS Server Port">
-                <Label>APRS Server Port:</Label>
+                <Label>PWS Server Port:</Label>
+            </Field>
+        </ConfigUI> 
+        <States>
+            <State id="status">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Status</TriggerLabel>
+                <ControlPageLabel>Status</ControlPageLabel>
+            </State>
+            <State id="timestamp">
+                <ValueType>String</ValueType>
+                <TriggerLabel>Time Stamp</TriggerLabel>
+                <ControlPageLabel>Time Stamp</ControlPageLabel>
+            </State>
+        </States>
+        <UiDisplayStateId>status</UiDisplayStateId>
+    </Device>       
+    <Device type="custom" id="wu_sender">
+        <Name>Wunderground Network Account</Name>
+        <ConfigUI>  
+            <Field id="address" type="textfield"  defaultValue="" tooltip="Wunderground SID">
+                <Label>Wunderground SID:</Label>
+            </Field>
+            <Field id="password" type="textfield"  defaultValue="" tooltip="Wunderground Password">
+                <Label>Wunderground password:</Label>
+            </Field>
+            <Field id="iss_device" type="menu">
+                <Label>ISS Device:</Label>
+                <List class="self" filter="" method="issDeviceList"/>
+            </Field>            
+            <Field id="baro_device" type="menu">
+                <Label>Barometer Device:</Label>
+                <List class="self" filter="" method="baroDeviceList"/>
+            </Field>            
+            <Field id="updateFrequency" type="textfield" defaultValue="10">
+                <Label>Send updates to Wunderground every (minutes):</Label>
+            </Field>
+            <Field id="serverNote" type="label" fontSize="small" fontColor="darkgray">
+                <Label>Do not change the following fields unless you know exactly what you're doing!</Label>
+            </Field>
+            <Field id="host" type="textfield" defaultValue="weatherstation.wunderground.com" tooltip="WUnderground Server">
+                <Label>Wunderground Server Host:</Label>
+            </Field>
+            <Field id="port" type="textfield" defaultValue="80" tooltip="Wunderground Server Port">
+                <Label>Wunderground Server Port:</Label>
             </Field>
         </ConfigUI> 
         <States>

@@ -48,6 +48,9 @@ class APRS(object):
         self.iss_device =  int(self.device.pluginProps.get('iss_device', None))
         self.baro_device = int(self.device.pluginProps.get('baro_device', None))
 
+        self.updateFrequency = (float(self.device.pluginProps.get('updateFrequency', "10")) *  60.0)
+        self.next_update = time.time()
+
         self.logger.debug(u"{}: APRS station_id = {}, server_host = {}, server_port = {}".format(self.device.name, self.address, self.server_host, self.server_port))
 
         (latitude, longitude) = indigo.server.getLatitudeAndLongitude()
@@ -115,6 +118,10 @@ class APRS(object):
 
 
     def send_update(self):
+
+        self.logger.info(u"{}: Sending Update".format(self.device.name))
+
+        self.next_update = time.time() + self.updateFrequency
     
         iss_device = indigo.devices[self.iss_device]
         baro_device = indigo.devices[self.baro_device]
