@@ -137,10 +137,10 @@ class Plugin(indigo.PluginBase):
                 return value_to_convert, "in"
 
         def wind_conversion(value_to_convert):
-            if units_wind == "K":
-                return value_to_convert * 0.868976, "Knots"
+            if units_wind == "KNO":
+                return value_to_convert * 0.868976, "knots"
             elif units_wind == "KPH":
-                return value_to_convert * 1.60934, "Km/h"
+                return value_to_convert * 1.60934, "km/h"
             elif units_wind == "MPS":
                 return value_to_convert * 0.44704, "m/s"
             else:
@@ -168,7 +168,7 @@ class Plugin(indigo.PluginBase):
                 key = "rain_24_hr"
 
             if not (isinstance(value, int) or isinstance(value, float)):
-                self.logger.debug("sensorDictToList: key = {}, value = {} ({}) coerced to value 0".format(key, value, type(value)))
+                self.logger.threaddebug("sensorDictToList: key = {}, value = {} ({}) coerced to value 0".format(key, value, type(value)))
                 value = 0
             
             if key in ['temp','temp_in', 'dew_point', 'dew_point_in', 'heat_index_in', 'wind_chill', 'wet_bulb', 'heat_index', 'thw_index', 'thsw_index']:
