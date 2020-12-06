@@ -60,7 +60,7 @@ class PWS(object):
             'tempf': float(iss_device.states['temp']),
             'dewptf': float(iss_device.states['dew_point']),
 
-            'baromin': float(baro_device.states['bar_absolute']),
+            'baromin': float(baro_device.states['bar_sea_level']),
             'humidity': float(iss_device.states['hum']),
 
             'rainin': float(iss_device.states['rain_60_min']),
