@@ -2,13 +2,21 @@
 # -*- coding: utf-8 -*-
 ####################
 
+try:
+    import indigo
+except ImportError:
+    pass
+
+try:
+    import requests
+except ImportError:
+    pass
+
+from datetime import datetime
 import time
 import socket
 import json
 import logging
-import requests
-import threading
-import indigo
 
 ################################################################################
 class WeatherLink(object):
@@ -22,8 +30,11 @@ class WeatherLink(object):
         self.udp_port = None
         self.sock = None
 
-        self.pollFrequency = float(self.device.pluginProps.get('pollingFrequency', "10")) *  60.0
-        self.next_poll = time.time()
+        self.pollFrequency = float(self.device.pluginProps.get('pollingFrequency', "10")) * 60.0
+
+        self.pollingRounding = device.pluginProps.get("pollingRounding", False)
+
+        self.calculateNextPollTime(True)  # Calculate next polling time taking polling rounding into account
 
         self.logger.debug(u"WeatherLink __init__ address = {}, port = {}, pollFrequency = {}".format(self.address, self.http_port, self.pollFrequency))
         
@@ -36,7 +47,18 @@ class WeatherLink(object):
         ]
         self.device.updateStatesOnServer(stateList)
         self.device.updateStateImageOnServer(indigo.kStateImageSel.SensorOff)
-        
+
+    def calculateNextPollTime(self, class_init):
+        if self.pollingRounding:
+            currentTime = time.time()
+            previousRoundedTime = currentTime - (currentTime % self.pollFrequency)  # Calculate previous polling time
+            self.next_poll = previousRoundedTime + self.pollFrequency  # Calculate next polling time
+        else:
+            if class_init:  # If class is being initialised, force immediate poll
+                self.next_poll = time.time()
+            else:
+                self.next_poll = time.time() + self.pollFrequency
+
 
     def udp_start(self):
     
@@ -90,7 +112,7 @@ class WeatherLink(object):
                 self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
                 self.sock.settimeout(0.1)
                 self.sock.bind(('', self.udp_port))
-            except:
+            except socket.error as err:
                 self.logger.error(u"{}: udp_start() RequestException: {}".format(self.device.name, err))
                 stateList = [
                     { 'key':'status',   'value': 'Socket Error'},
@@ -111,7 +133,7 @@ class WeatherLink(object):
         except socket.timeout, err:
             return
         except socket.error, err:
-            self.logger.error(u"{}: udp_receive socket error: {}".format(device.name, err))
+            self.logger.error(u"{}: udp_receive socket error: {}".format(self.device.name, err))
             stateList = [
                 { 'key':'status',   'value':'socket Error'},
             ]
@@ -150,8 +172,8 @@ class WeatherLink(object):
         
         self.logger.info(u"{}: Polling WeatherLink Live".format(self.device.name))
         
-        self.next_poll = time.time() + self.pollFrequency
-        
+        self.calculateNextPollTime(False)  # Calculate next polling time taking polling rounding into account
+
         url = "http://{}:{}/v1/current_conditions".format(self.address, self.http_port)
         try:
             response = requests.get(url, timeout=3.0)

@@ -12,6 +12,14 @@
             <Field id="pollingFrequency" type="textfield" defaultValue="10">
                 <Label>Poll WeatherLink Live every (minutes):</Label>
             </Field>
+
+            <Field id="pollingRounding" type="checkbox" defaultValue="false">
+                <Label>Polling Frequency rounding:</Label>
+            </Field>
+            <Field id="pollingRoundingNote" type="label" fontSize="small" fontColor="darkgray">
+                <Label>Will force polling to every Polling Frequency minutes from the start of an hour (inclusive).</Label>
+            </Field>
+
             <Field id="enableUDP" type="checkbox" defaultValue="true">
                 <Label>Enable continuous updates:</Label>
             </Field>

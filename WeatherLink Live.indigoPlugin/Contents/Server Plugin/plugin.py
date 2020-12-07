@@ -305,7 +305,9 @@ class Plugin(indigo.PluginBase):
         else:
             self.logger.warning(u"{}: Invalid device type: {}".format(device.name, device.deviceTypeId))
 
-        self.updateNeeded = True
+        if not device.pluginProps.get("pollingRounding", False):
+            # Only do intial update if Polling Frequency rounding not in effect
+            self.updateNeeded = True
         self.logger.debug(u"{}: deviceStartComm complete, sensorDevices = {}".format(device.name, self.sensorDevices))
 
             
